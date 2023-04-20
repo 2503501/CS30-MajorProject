@@ -7,11 +7,12 @@
 
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(windowWidth, windowHeight, WEBGL);
 }
 
 function draw() {
   background(220);
   rectMode(CENTER);
-  rect(mouseX, mouseY, 50, 50);
+  rotateY(frameCount * 0.1);
+  box(100);
 }
