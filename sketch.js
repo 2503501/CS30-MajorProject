@@ -8,10 +8,12 @@
 
 let backgroundOffset = 100;
 let tileSize;
+let gamestate = "main";
+let mainMenuground = loadImage("blackbishop.png");
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  tileSize = (height)/6;
+  tileSize = height/6;
 }
 
 function draw() {
