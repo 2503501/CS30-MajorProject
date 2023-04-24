@@ -6,13 +6,30 @@
 // - describe what you did to take this project "above and beyond"
 
 
+let backgroundOffset = 100;
+let tileSize;
+
 function setup() {
-  createCanvas(windowWidth, windowHeight, WEBGL);
+  createCanvas(windowWidth, windowHeight);
+  tileSize = (height)/6;
 }
 
 function draw() {
-  background(220);
-  rectMode(CENTER);
-  rotateY(frameCount * 0.1);
-  box(100);
+  background(200);
+  drawBackground();
+
+}
+
+function drawBackground(){
+  for (let x = 0; x < 10; x++){
+    for (let y = 0; y < 5; y++){
+      if ((x+y+1 ) % 2){
+        fill(28,133,30);
+      }
+      else{
+        fill(133,186,68);
+      }
+      rect(x*tileSize + backgroundOffset, y*tileSize + height/6, tileSize, tileSize);
+    }
+  }
 }
