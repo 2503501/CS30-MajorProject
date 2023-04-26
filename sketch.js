@@ -15,6 +15,8 @@ let housePicture;
 let backgroundFence;
 let grasstile1;
 let grasstile2;
+let lawn;
+
 
 let pieceSelected = false;
 
@@ -33,6 +35,7 @@ function setup() {
   backgroundFence = loadImage("fence.jpg");
   grasstile1 = loadImage("grasstile1.jpg");
   grasstile2 = loadImage("grasstile2.jpg");
+  lawn = loadImage("lawn.PNG");
 
 
 
@@ -46,11 +49,11 @@ function draw() {
 
 function mousePressed(){
   updateBackgroundStatus();
-  console.log(mouseX);
-  console.log(mouseY);
   if (!pieceSelected){
-    let x = Math.floor(mouseX/tileSize - (width/2 - tileSize *4 )/tileSize);
-    let y = Math.floor(mouseY/tileSize - (height/2 - tileSize *4 )/tileSize);
+    let x = Math.floor(mouseX/tileSize - backgroundOffset/tileSize);
+    let y = Math.floor(mouseY/tileSize - tileSize /tileSize);
+    console.log(`${x}, ${y}`);
+
   }
 }
 
@@ -59,19 +62,18 @@ function drawBackground(){
     background(mainMenuBackground);
   }
   if (gamestate === "adventure"){
-    for (let x = 0; x < 9; x++){
-      for (let y = 0; y < 5; y++){
-        if ((x+y+1 ) % 2){
-          // fill(28,133,30);
-          image(grasstile1, x*tileSize + backgroundOffset, y*tileSize + height/6, tileSize, tileSize );
-        }
-        else{
-          image(grasstile2, x*tileSize + backgroundOffset, y*tileSize + height/6, tileSize, tileSize );
-          // fill(133,186,68);
-        }
-        // rect(x*tileSize + backgroundOffset, y*tileSize + height/6, tileSize, tileSize);
-      }
-    }
+    // for (let x = 0; x < 9; x++){
+    //   for (let y = 0; y < 5; y++){
+    //     if ((x+y+1 ) % 2){
+    //       fill(28,133,30);
+    //     }
+    //     else{
+    //       fill(133,186,68);
+    //     }
+    //     rect(x*tileSize + backgroundOffset, y*tileSize + height/6, tileSize, tileSize);
+    //   }
+    // }
+    image(lawn, backgroundOffset, tileSize, tileSize*9,tileSize*5);
     image(housePicture, 0, 0, backgroundOffset, height);
     image(backgroundFence, backgroundOffset, 0, tileSize*9, tileSize);
     fill(218, 160, 109);
