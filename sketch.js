@@ -16,6 +16,7 @@ let backgroundFence;
 let grasstile1;
 let grasstile2;
 let lawn;
+let sidewalk;
 
 
 let pieceSelected = false;
@@ -36,6 +37,7 @@ function setup() {
   grasstile1 = loadImage("grasstile1.jpg");
   grasstile2 = loadImage("grasstile2.jpg");
   lawn = loadImage("lawn.PNG");
+  sidewalk = loadImage("sidewalk.jpg");
 
 
 
@@ -76,6 +78,7 @@ function drawBackground(){
     image(lawn, backgroundOffset, tileSize, tileSize*9,tileSize*5);
     image(housePicture, 0, 0, backgroundOffset, height);
     image(backgroundFence, backgroundOffset, 0, tileSize*9, tileSize);
+    image(sidewalk,backgroundOffset+ tileSize * 9, 0, width - (backgroundOffset+ tileSize * 9), height);
     fill(218, 160, 109);
     rect(backgroundOffset, 0, tileSize*6, tileSize  -50);
   }
