@@ -9,15 +9,10 @@
 let backgroundOffset = 400;
 let tileSize;
 let gamestate = "main";
+let levelSelectButton;
+let buttons = [levelSelectButton];
 
-let mainMenuBackground;
-let housePicture;
-let backgroundFence;
-let grasstile1;
-let grasstile2;
-let lawn;
-let sidewalk;
-
+let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk;
 
 let pieceSelected = false;
 
@@ -34,12 +29,11 @@ function setup() {
   mainMenuBackground = loadImage("mainmenu.jpg");
   housePicture = loadImage("house.jpg");
   backgroundFence = loadImage("fence.jpg");
-  grasstile1 = loadImage("grasstile1.jpg");
-  grasstile2 = loadImage("grasstile2.jpg");
   lawn = loadImage("lawn.PNG");
   sidewalk = loadImage("sidewalk.jpg");
-
-
+  
+  levelSelectButton = createButton("Select Level");
+  levelSelectButton.position(822, 117);
 
   tileSize = height/6;
 }
@@ -50,12 +44,12 @@ function draw() {
 }
 
 function mousePressed(){
+  console.log(`${mouseX}, ${mouseY}`);
   updateBackgroundStatus();
-  if (!pieceSelected){
+  if (!pieceSelected && gamestate === "adventure"){
     let x = Math.floor(mouseX/tileSize - backgroundOffset/tileSize);
     let y = Math.floor(mouseY/tileSize - tileSize /tileSize);
     console.log(`${x}, ${y}`);
-
   }
 }
 
