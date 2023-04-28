@@ -6,11 +6,13 @@
 // - describe what you did to take this project "above and beyond"
 
 
-let backgroundOffset = 400;
+let backgroundOffset;
 let tileSize;
 let gamestate = "main";
 let levelSelectButton;
-let buttons = [levelSelectButton];
+let buttons = [];
+
+let mainMenuColorButton = (73,76,93);
 
 let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk;
 
@@ -25,7 +27,17 @@ let grid = [
 ];
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+
+  if (windowWidth/windowHeight < 1.9){
+    createCanvas(windowWidth, windowWidth/1.9);
+  }
+  else{
+    createCanvas(windowWidth, windowHeight);
+  }
+
+  backgroundOffset = width/5;
+  tileSize = height/6;
+
   mainMenuBackground = loadImage("mainmenu.jpg");
   housePicture = loadImage("house.jpg");
   backgroundFence = loadImage("fence.jpg");
@@ -33,54 +45,56 @@ function setup() {
   sidewalk = loadImage("sidewalk.jpg");
   
   levelSelectButton = createButton("Select Level");
-  levelSelectButton.position(822, 117);
+  levelSelectButton.position(width * 0.512, height* 0.15);
+  levelSelectButton.size(width * 0.4, height * 0.13);
+  levelSelectButton.style("background-color", color(73,76,93));
+  levelSelectButton.style("font-size", "24px", "color", "#ffffff");
+  buttons.push(levelSelectButton);
 
-  tileSize = height/6;
 }
 
 function draw() {
+  buttonhider();
   background(200);
-  drawBackground();
+  backgroundDrawer(gamestate);
 }
 
 function mousePressed(){
-  console.log(`${mouseX}, ${mouseY}`);
+  // console.log(`${mouseX}, ${mouseY}`);
   updateBackgroundStatus();
   if (!pieceSelected && gamestate === "adventure"){
     let x = Math.floor(mouseX/tileSize - backgroundOffset/tileSize);
     let y = Math.floor(mouseY/tileSize - tileSize /tileSize);
-    console.log(`${x}, ${y}`);
+    // console.log(`${x}, ${y}`);
   }
 }
 
-function drawBackground(){
-  if (gamestate === "main"){
-    background(mainMenuBackground);
+
+function updateBackgroundStatus(){
+  levelSelectButton.mouseClicked(levelSelectButtonClicked);
+}
+
+function buttonhider(){
+  for (let i = 0; i < buttons.length; i++){
+    buttons[i].hide();
   }
-  if (gamestate === "adventure"){
-    // for (let x = 0; x < 9; x++){
-    //   for (let y = 0; y < 5; y++){
-    //     if ((x+y+1 ) % 2){
-    //       fill(28,133,30);
-    //     }
-    //     else{
-    //       fill(133,186,68);
-    //     }
-    //     rect(x*tileSize + backgroundOffset, y*tileSize + height/6, tileSize, tileSize);
-    //   }
-    // }
+}
+
+function levelSelectButtonClicked(){
+  gamestate = "adventure";
+}
+
+function backgroundDrawer(whichbackground){
+  if (whichbackground === "main"){
+    background(mainMenuBackground);
+    levelSelectButton.show();
+  }
+  else if (whichbackground === "adventure"){
     image(lawn, backgroundOffset, tileSize, tileSize*9,tileSize*5);
     image(housePicture, 0, 0, backgroundOffset, height);
     image(backgroundFence, backgroundOffset, 0, tileSize*9, tileSize);
     image(sidewalk,backgroundOffset+ tileSize * 9, 0, width - (backgroundOffset+ tileSize * 9), height);
     fill(218, 160, 109);
     rect(backgroundOffset, 0, tileSize*6, tileSize  -50);
-  }
-}
-
-
-function updateBackgroundStatus(){
-  if (mouseX >988 && mouseX < 1740 && mouseY >146 && mouseY < 300 && gamestate === "main"){
-    gamestate = "adventure";
   }
 }
