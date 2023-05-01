@@ -12,9 +12,9 @@ let gamestate = "main";
 let levelSelectButton;
 let buttons = [];
 
-let mainMenuColorButton = (73,76,93);
 
-let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk;
+let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage;
+let sun_diameter;
 
 let pieceSelected = false;
 
@@ -37,12 +37,14 @@ function setup() {
 
   backgroundOffset = width/5;
   tileSize = height/6;
+  sun_diameter = tileSize* (1/2);
 
   mainMenuBackground = loadImage("mainmenu.jpg");
   housePicture = loadImage("house.jpg");
   backgroundFence = loadImage("fence.jpg");
   lawn = loadImage("lawn.PNG");
   sidewalk = loadImage("sidewalk.jpg");
+  sunimage = createImg("Sun.gif");
   
   levelSelectButton = createButton("Select Level");
   levelSelectButton.position(width * 0.512, height* 0.15);
@@ -95,6 +97,16 @@ function backgroundDrawer(whichbackground){
     image(backgroundFence, backgroundOffset, 0, tileSize*9, tileSize);
     image(sidewalk,backgroundOffset+ tileSize * 9, 0, width - (backgroundOffset+ tileSize * 9), height);
     fill(218, 160, 109);
+    stroke(144,69,30);
+    strokeWeight(4);
+    ellipseMode(CENTER);
     rect(backgroundOffset, 0, tileSize*6, tileSize  -50);
+    rect(backgroundOffset- tileSize* (2/3), 0 ,tileSize* (2/3), tileSize);
+    ellipse(backgroundOffset- tileSize* (1/3), tileSize/3, sun_diameter);
+    // image(sun_diameter,backgroundOffset- tileSize* (1/3), tileSize/3, sun_diameter, sun_diameter );
+    sunimage.size(sun_diameter, sun_diameter);
+    sunimage.position(backgroundOffset- tileSize* (7/12), tileSize/8);
+
+
   }
 }
