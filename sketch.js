@@ -11,6 +11,7 @@ let tileSize;
 let gamestate = "main";
 let levelSelectButton;
 let buttons = [];
+let sunAmount = 50;
 
 
 let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage;
@@ -90,6 +91,7 @@ function backgroundDrawer(whichbackground){
   if (whichbackground === "main"){
     background(mainMenuBackground);
     levelSelectButton.show();
+    sunimage.hide();
   }
   else if (whichbackground === "adventure"){
     image(lawn, backgroundOffset, tileSize, tileSize*9,tileSize*5);
@@ -104,9 +106,14 @@ function backgroundDrawer(whichbackground){
     rect(backgroundOffset- tileSize* (2/3), 0 ,tileSize* (2/3), tileSize);
     ellipse(backgroundOffset- tileSize* (1/3), tileSize/3, sun_diameter);
     // image(sun_diameter,backgroundOffset- tileSize* (1/3), tileSize/3, sun_diameter, sun_diameter );
+    sunimage.show();
     sunimage.size(sun_diameter, sun_diameter);
-    sunimage.position(backgroundOffset- tileSize* (7/12), tileSize/8);
-
+    sunimage.position(backgroundOffset- tileSize* (7/12), tileSize/10);
+    line(backgroundOffset- tileSize* (2/3), tileSize* (2/3),backgroundOffset, tileSize* (2/3));
+    fill(255);
+    textAlign(CENTER);
+    textSize(25);
+    text(sunAmount, backgroundOffset- tileSize* (1/3),  tileSize* (7/8));
 
   }
 }
