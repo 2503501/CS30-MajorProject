@@ -21,6 +21,7 @@ let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage,
 let peashooter_gif;
 
 let pieceSelected = false;
+let draggedPiece = null;
 
 const Row = 9;
 const Columns = 5;
@@ -62,25 +63,54 @@ function setup() {
   levelSelectButton.style("background-color", color(73,76,93));
   levelSelectButton.style("font-size", "24px", "color", "#ffffff");
   buttons.push(levelSelectButton);
-
 }
 
 function draw() {
+  imageMode(CORNER);
   buttonhider();
   background(200);
   backgroundDrawer(gamestate);
+  displayDraggedPiece();
   
 }
+
+
 
 function mousePressed(){
   // console.log(`${mouseX}, ${mouseY}`);
   updateBackgroundStatus();
   if (!pieceSelected && gamestate === "adventure"){
-    let x = Math.floor(mouseX/tileSize - backgroundOffset/tileSize);
-    let y = Math.floor(mouseY/tileSize - tileSize /tileSize);
+    let x = Math.floor(mouseX/(tileSize * (1/2)) - backgroundOffset/(tileSize * (1/2)));
+    let y = Math.floor(mouseY/(tileSize * 3/4));
+    let seedclicked = x >= 0 && x <=5 && y === 0;
+    if (seedclicked){
+
+      //peashooter
+      if (x ===0){
+        draggedPiece = loadImage("Peashooter.gif");
+      }
+    }
+
+
+    // let x = Math.floor(mouseX/tileSize - backgroundOffset/tileSize);
+    // let y = Math.floor(mouseY/tileSize - tileSize /tileSize);
 
     // console.log(`${x}, ${y}`);
   }
+}
+
+function mouseDragged() {
+  if(draggedPiece) {
+    draggedPiece.x = mouseX;
+    draggedPiece.y = mouseY;
+  }
+}
+
+function mouseReleased() {
+  if(draggedPiece) {
+    draggedPiece = null;
+  }
+
 }
 
 
@@ -126,24 +156,30 @@ function backgroundDrawer(whichbackground){
     textSize(20);
     text(sunAmount, backgroundOffset- tileSize* (1/3),  tileSize* (13/16));
     image(peashooterSeed, backgroundOffset,0,tileSize*(1/2), tileSize*(3/4));
-    image(eval(gif_converter(grid[0][0])), backgroundOffset +plantOffset + tileSize * 0, tileSize +plantOffset + tileSize * 0, tileSize - plantOffset * 2, tileSize - plantOffset);
+    // image(eval(gif_converter(grid[0][0])), backgroundOffset +plantOffset + tileSize * 8, tileSize +plantOffset + tileSize * 4, tileSize - plantOffset * 2, tileSize - plantOffset);
     // displayGrid();
   }
 }
 
-function displayGrid(){
-  for(let y = 0; y < Columns; y++){
-    for(let x = 0; x < Row; x++){
-      if (grid[y][x] !== "0"){
-        // console.log(window[grid[y][x]]);
-        image(eval(gif_converter(grid[y][x])), backgroundOffset + tileSize * x, tileSize + tileSize * y, tileSize, tileSize);
-      }
-    }
+function displayDraggedPiece(){
+  if (draggedPiece){
+    imageMode(CENTER);
+    image(draggedPiece, draggedPiece.x, draggedPiece.y, tileSize - plantOffset * 2, tileSize - plantOffset * 2);
   }
 }
 
-function gif_converter(picname){
-  let returner = picname;
-  returner = returner + "_gif";
-  return returner;
-}
+// function displayGrid(){
+//   for(let y = 0; y < Columns; y++){
+//     for(let x = 0; x < Row; x++){
+//       if (grid[y][x] !== "0"){
+//         image(eval(gif_converter(grid[y][x])),  backgroundOffset +plantOffset + tileSize * x, tileSize +plantOffset + tileSize * y, tileSize - plantOffset * 2, tileSize - plantOffset);
+//       }
+//     }
+//   }
+// }
+
+// function gif_converter(picname){
+//   let returner = picname;
+//   returner = returner + "_gif";
+//   return returner;
+// }
