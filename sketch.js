@@ -13,6 +13,9 @@ let gamestate = "main";
 let levelSelectButton;
 let buttons = [];
 
+let plantsArray = [];
+let zombieArray = [];
+
 let sun_diameter;
 let sunAmount = 50;
 
@@ -22,16 +25,32 @@ let peashooter_gif;
 
 let pieceSelected = false;
 let draggedPiece = null;
+let draggedImage = null;
 
 const Row = 9;
 const Columns = 5;
 let grid = [
-  ["peashooter",0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0]
 ];
+
+class Plant{
+  constructor(y, x, whatplant){
+    this.row = y;
+    this.x = x; 
+    this.plant = whatplant;
+  }
+
+  display(){
+    image(eval(gif_converter(this.plant)), backgroundOffset + plantOffset  + tileSize * this.x, tileSize +plantOffset  + tileSize * this.row, tileSize - plantOffset * 2  , tileSize - plantOffset * 2 );
+  }
+
+}
+
+
 
 function setup() {
 
@@ -70,6 +89,9 @@ function draw() {
   buttonhider();
   background(200);
   backgroundDrawer(gamestate);
+  for (let plant of plantsArray){
+    plant.display();
+  }
   displayDraggedPiece();
   
 }
@@ -80,6 +102,7 @@ function mousePressed(){
   // console.log(`${mouseX}, ${mouseY}`);
   updateBackgroundStatus();
   if (!pieceSelected && gamestate === "adventure"){
+
     let x = Math.floor(mouseX/(tileSize * (1/2)) - backgroundOffset/(tileSize * (1/2)));
     let y = Math.floor(mouseY/(tileSize * 3/4));
     let seedclicked = x >= 0 && x <=5 && y === 0;
@@ -87,28 +110,33 @@ function mousePressed(){
 
       //peashooter
       if (x ===0){
-        draggedPiece = loadImage("Peashooter.gif");
+        draggedPiece = "peashooter";
+        draggedImage = loadImage("Peashooter.gif");
       }
     }
 
-
-    // let x = Math.floor(mouseX/tileSize - backgroundOffset/tileSize);
-    // let y = Math.floor(mouseY/tileSize - tileSize /tileSize);
 
     // console.log(`${x}, ${y}`);
   }
 }
 
 function mouseDragged() {
-  if(draggedPiece) {
-    draggedPiece.x = mouseX;
-    draggedPiece.y = mouseY;
+  if(draggedImage) {
+    draggedImage.x = mouseX;
+    draggedImage.y = mouseY;
   }
 }
 
 function mouseReleased() {
-  if(draggedPiece) {
+  let x = Math.floor(draggedImage.x/tileSize - backgroundOffset/tileSize);
+  let y = Math.floor(draggedImage.y/tileSize - tileSize /tileSize);
+  if(draggedImage) {
+    if (draggedPiece === "peashooter" && x >= 0 && x <=8 && y >= 0 && y <= 4){
+      let newplant = new Plant(y, x, draggedPiece); 
+      plantsArray.push(newplant);
+    }
     draggedPiece = null;
+    draggedImage = null;
   }
 
 }
@@ -162,24 +190,14 @@ function backgroundDrawer(whichbackground){
 }
 
 function displayDraggedPiece(){
-  if (draggedPiece){
+  if (draggedImage){
     imageMode(CENTER);
-    image(draggedPiece, draggedPiece.x, draggedPiece.y, tileSize - plantOffset * 2, tileSize - plantOffset * 2);
+    image(draggedImage, draggedImage.x, draggedImage.y, tileSize - plantOffset * 2, tileSize - plantOffset * 2);
   }
 }
 
-// function displayGrid(){
-//   for(let y = 0; y < Columns; y++){
-//     for(let x = 0; x < Row; x++){
-//       if (grid[y][x] !== "0"){
-//         image(eval(gif_converter(grid[y][x])),  backgroundOffset +plantOffset + tileSize * x, tileSize +plantOffset + tileSize * y, tileSize - plantOffset * 2, tileSize - plantOffset);
-//       }
-//     }
-//   }
-// }
-
-// function gif_converter(picname){
-//   let returner = picname;
-//   returner = returner + "_gif";
-//   return returner;
-// }
+function gif_converter(picname){
+  let returner = picname;
+  returner = returner + "_gif";
+  return returner;
+}
