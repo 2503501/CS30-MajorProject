@@ -5,7 +5,11 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
-
+let scrollOffest = 0;
+let scrollTimer;
+let scrollDirection = "forward";
+let scrollMax;
+let startscroll = false;
 let backgroundOffset;
 let plantOffset;
 let tileSize;
@@ -30,11 +34,11 @@ let draggedImage = null;
 const Row = 9;
 const Columns = 5;
 let grid = [
-  [0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0]
+  ["0","0","0","0","0","0","0","0","0"],
+  ["0","0","0","0","0","0","0","0","0"],
+  ["0","0","0","0","0","0","0","0","0"],
+  ["0","0","0","0","0","0","0","0","0"],
+  ["0","0","0","0","0","0","0","0","0"]
 ];
 
 class Plant{
@@ -65,12 +69,15 @@ function setup() {
   tileSize = height/6;
   sun_diameter = tileSize* (1/2);
   plantOffset = tileSize/6;
+  scrollMax =  backgroundOffset+ tileSize * 9 - 500;
+
+  scrollTimer = new Timer(2000);
 
   mainMenuBackground = loadImage("mainmenu.jpg");
   housePicture = loadImage("house.jpg");
   backgroundFence = loadImage("fence.jpg");
   lawn = loadImage("lawn.PNG");
-  sidewalk = loadImage("sidewalk.jpg");
+  sidewalk = loadImage("sidewalkextended.jpg");
   sunimage = loadImage("Sun.gif");
   peashooterSeed = loadImage("peashooterseed.PNG");
   
@@ -128,12 +135,13 @@ function mouseDragged() {
 }
 
 function mouseReleased() {
-  let x = Math.floor(draggedImage.x/tileSize - backgroundOffset/tileSize);
-  let y = Math.floor(draggedImage.y/tileSize - tileSize /tileSize);
+  let x = Math.floor(mouseX/tileSize - backgroundOffset/tileSize);
+  let y = Math.floor(mouseY/tileSize - tileSize /tileSize);
   if(draggedImage) {
-    if (draggedPiece === "peashooter" && x >= 0 && x <=8 && y >= 0 && y <= 4){
+    if (draggedPiece === "peashooter" && x >= 0 && x <=8 && y >= 0 && y <= 4 && grid[y][x] === "0"){
       let newplant = new Plant(y, x, draggedPiece); 
       plantsArray.push(newplant);
+      grid[y][x] = draggedPiece;
     }
     draggedPiece = null;
     draggedImage = null;
@@ -153,7 +161,8 @@ function buttonhider(){
 }
 
 function levelSelectButtonClicked(){
-  gamestate = "adventure";
+  gamestate = "pregame";
+  scrollTimer.start();
 }
 
 function backgroundDrawer(whichbackground){
@@ -161,13 +170,34 @@ function backgroundDrawer(whichbackground){
     background(mainMenuBackground);
     levelSelectButton.show();
   }
+  else if (whichbackground === "pregame"){
+    image(lawn,scrollOffest + backgroundOffset, tileSize, tileSize*9,tileSize*5);
+    image(housePicture,scrollOffest + 0, 0, backgroundOffset, height);
+    image(backgroundFence,scrollOffest + backgroundOffset, 0, tileSize*9, tileSize);
+    image(sidewalk,scrollOffest + backgroundOffset+ tileSize * 9, 0, width - (backgroundOffset+ tileSize * 9) + 500, height);
+    if (scrollTimer.expired()){
+      startscroll = true;
+    }
+    if (startscroll){
+      if (scrollDirection === "forward" && scrollMax <= scrollOffest + backgroundOffset+ tileSize * 9){
+        scrollOffest -= 8;  
+        if (scrollMax >= scrollOffest + backgroundOffset+ tileSize * 9){
+          scrollDirection = "backwards";
+        }
+      }
+      else if ( scrollDirection === "backwards" && scrollOffest <= 0){
+        scrollOffest+= 8;
+      }
+    }
+  }
   else if (whichbackground === "adventure"){
 
     //background images
     image(lawn, backgroundOffset, tileSize, tileSize*9,tileSize*5);
     image(housePicture, 0, 0, backgroundOffset, height);
     image(backgroundFence, backgroundOffset, 0, tileSize*9, tileSize);
-    image(sidewalk,backgroundOffset+ tileSize * 9, 0, width - (backgroundOffset+ tileSize * 9), height);
+    image(sidewalk,backgroundOffset+ tileSize * 9, 0, width - (backgroundOffset+ tileSize * 9) + 500, height);
+
 
     //taskbar with seed packets, and sun counter
     fill(218, 160, 109);
@@ -184,8 +214,6 @@ function backgroundDrawer(whichbackground){
     textSize(20);
     text(sunAmount, backgroundOffset- tileSize* (1/3),  tileSize* (13/16));
     image(peashooterSeed, backgroundOffset,0,tileSize*(1/2), tileSize*(3/4));
-    // image(eval(gif_converter(grid[0][0])), backgroundOffset +plantOffset + tileSize * 8, tileSize +plantOffset + tileSize * 4, tileSize - plantOffset * 2, tileSize - plantOffset);
-    // displayGrid();
   }
 }
 
