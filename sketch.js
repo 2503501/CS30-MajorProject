@@ -71,7 +71,7 @@ function setup() {
   plantOffset = tileSize/6;
   scrollMax =  backgroundOffset+ tileSize * 9 - 500;
 
-  scrollTimer = new Timer(2000);
+  scrollTimer = new Timer(1500);
 
   mainMenuBackground = loadImage("mainmenu.jpg");
   housePicture = loadImage("house.jpg");
@@ -187,10 +187,14 @@ function backgroundDrawer(whichbackground){
       }
       else if ( scrollDirection === "backwards" && scrollOffest <= 0){
         scrollOffest+= 8;
+        if (scrollOffest >= -10){
+          scrollOffest = 0;
+          gamestate = "adventure";
+        }
       }
     }
   }
-  else if (whichbackground === "adventure"){
+  else if (gamestate === "adventure"){
 
     //background images
     image(lawn, backgroundOffset, tileSize, tileSize*9,tileSize*5);
