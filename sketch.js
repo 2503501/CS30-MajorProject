@@ -7,6 +7,8 @@
 
 let scrollOffest = 0;
 let scrollTimer;
+let readySetPlantStatus = null;
+let countdownTimer = 4;
 let scrollDirection = "forward";
 let scrollMax;
 let startscroll = false;
@@ -24,7 +26,7 @@ let sun_diameter;
 let sunAmount = 50;
 
 
-let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed;
+let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, readyLogo, setLogo, Plantlogo;
 let peashooter_gif;
 
 let pieceSelected = false;
@@ -80,6 +82,9 @@ function setup() {
   sidewalk = loadImage("sidewalkextended.jpg");
   sunimage = loadImage("Sun.gif");
   peashooterSeed = loadImage("peashooterseed.PNG");
+  readyLogo = loadImage("ready.png");
+  setLogo = loadImage("set.png");
+  Plantlogo = loadImage("plant.png");
   
   peashooter_gif = loadImage("Peashooter.gif");
 
@@ -189,10 +194,35 @@ function backgroundDrawer(whichbackground){
         scrollOffest+= 8;
         if (scrollOffest >= -10){
           scrollOffest = 0;
-          gamestate = "adventure";
+          gamestate = "readysetplant";
+          readySetPlantStatus = "ready";
         }
       }
     }
+  }
+  else if (gamestate === "readysetplant"){
+    image(lawn, backgroundOffset, tileSize, tileSize*9,tileSize*5);
+    image(housePicture, 0, 0, backgroundOffset, height);
+    image(backgroundFence, backgroundOffset, 0, tileSize*9, tileSize);
+    image(sidewalk,backgroundOffset+ tileSize * 9, 0, width - (backgroundOffset+ tileSize * 9) + 500, height);
+    displayreadysetPlant(readySetPlantStatus);
+
+    if (frameCount % 60 === 0 && countdownTimer >= 3){
+      countdownTimer --;
+      if (frameCount % 60 === 0 && countdownTimer < 3){
+        readySetPlantStatus = "set";
+      }
+    }
+    else if (frameCount % 60 === 0 && countdownTimer === 2){
+      countdownTimer --;
+      readySetPlantStatus = "plant";
+    }
+    else if (frameCount % 60 === 0 && countdownTimer === 1){
+      gamestate = "adventure";
+      countdownTimer = 4;
+      readySetPlantStatus = null;
+    }
+
   }
   else if (gamestate === "adventure"){
 
@@ -233,3 +263,16 @@ function gif_converter(picname){
   returner = returner + "_gif";
   return returner;
 }
+
+function displayreadysetPlant(status){
+  if (status === "ready"){
+    image(readyLogo, width/2 - readyLogo.width/2, height * 1/3);
+  }
+  else if (status === "set"){
+    image(setLogo, width/2 - readyLogo.width/2, height * 1/3);
+  }
+  else if (status === "plant"){
+    image(Plantlogo, width/2 - readyLogo.width/2, height * 1/3);
+  }
+}
+
