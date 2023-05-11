@@ -7,6 +7,8 @@
 
 let scrollOffest = 0;
 let scrollTimer;
+let preSunTimer;
+let sunTimer;
 let readySetPlantStatus = null;
 let countdownTimer = 4;
 let scrollDirection = "forward";
@@ -21,9 +23,11 @@ let buttons = [];
 
 let plantsArray = [];
 let zombieArray = [];
+let sunArray = [];
 
 let sun_diameter;
-let sunAmount = 50;
+let sunAmount = 150;
+let skysun;
 
 
 let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, readyLogo, setLogo, Plantlogo;
@@ -53,7 +57,15 @@ class Plant{
   display(){
     image(eval(gif_converter(this.plant)), backgroundOffset + plantOffset  + tileSize * this.x, tileSize +plantOffset  + tileSize * this.row, tileSize - plantOffset * 2  , tileSize - plantOffset * 2 );
   }
+}
 
+class Sun{
+  constructor(x, y, targety, mode){
+    this.x = x;
+    this.y = y;
+    this.finishY = targety;
+    this.mode = mode;
+  }
 }
 
 
@@ -74,6 +86,7 @@ function setup() {
   scrollMax =  backgroundOffset+ tileSize * 9 - 500;
 
   scrollTimer = new Timer(1500);
+  sunTimer = new Timer(8500);
 
   mainMenuBackground = loadImage("mainmenu.jpg");
   housePicture = loadImage("house.jpg");
@@ -100,6 +113,7 @@ function draw() {
   imageMode(CORNER);
   buttonhider();
   background(200);
+  sunDroper();
   backgroundDrawer(gamestate);
   for (let plant of plantsArray){
     plant.display();
@@ -121,7 +135,7 @@ function mousePressed(){
     if (seedclicked){
 
       //peashooter
-      if (x ===0){
+      if (x ===0 && sunAmount >= 100){
         draggedPiece = "peashooter";
         draggedImage = loadImage("Peashooter.gif");
       }
@@ -169,6 +183,21 @@ function levelSelectButtonClicked(){
   gamestate = "pregame";
   scrollTimer.start();
 }
+
+function sunDroper(){
+  if (gamestate === "adventure"){
+    console.log("hey");
+    if (sunTimer.expired()){
+      console.log("hi");
+      let newSun = new Sun(random(backgroundOffset, tileSize * 9 + backgroundOffset), 0, random(tileSize * 1.25, tileSize* 4.75), "sky");
+      sunArray.push(newSun);
+      sunTimer.start();
+    }
+  }
+
+}
+
+
 
 function backgroundDrawer(whichbackground){
   if (whichbackground === "main"){
@@ -219,6 +248,7 @@ function backgroundDrawer(whichbackground){
     }
     else if (frameCount % 60 === 0 && countdownTimer === 1){
       gamestate = "adventure";
+      sunTimer.start();
       countdownTimer = 4;
       readySetPlantStatus = null;
     }
