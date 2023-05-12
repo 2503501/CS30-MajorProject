@@ -64,9 +64,37 @@ class Sun{
     this.x = x;
     this.y = y;
     this.finishY = targety;
+    this.finishX - null;
+    this.dy = 2
+    this.dx = null;
+    this.collected = false;
     this.mode = mode;
   }
+  update(arraylocation){
+    if (this.y <= this.finishY && !this.collected ){
+      this.y += this.dy;
+    }
+    if (mouseX >= this.x && mouseX  <= this.x + sun_diameter && mouseY >= this.y && mouseY  <=this.y + sun_diameter){
+      this.collected = true;
+      this.finishX = backgroundOffset- tileSize* (7/12)
+      this.finishY = tileSize/10
+      this.dx = (this.x - this.finishX)/15;
+      this.dy = (this.y - this.finishY) /15;
+      sunAmount += 25;
+    }
+    if (this.collected){
+      this.x -= this.dx;
+      this.y -= this.dy;
+      if (this.y < tileSize/10 && this.x < backgroundOffset- tileSize* (7/12)){
+        sunArray.splice(arraylocation, 1);
+      }
+    }
+  }
+  display(){
+    image(sunimage, this.x, this.y , sun_diameter, sun_diameter);
+  }
 }
+
 
 
 
@@ -118,6 +146,8 @@ function draw() {
   for (let plant of plantsArray){
     plant.display();
   }
+  sunDisplay();
+  
   displayDraggedPiece();
   
 }
@@ -158,6 +188,7 @@ function mouseReleased() {
   let y = Math.floor(mouseY/tileSize - tileSize /tileSize);
   if(draggedImage) {
     if (draggedPiece === "peashooter" && x >= 0 && x <=8 && y >= 0 && y <= 4 && grid[y][x] === "0"){
+      sunAmount -= 100;
       let newplant = new Plant(y, x, draggedPiece); 
       plantsArray.push(newplant);
       grid[y][x] = draggedPiece;
@@ -186,15 +217,20 @@ function levelSelectButtonClicked(){
 
 function sunDroper(){
   if (gamestate === "adventure"){
-    console.log("hey");
     if (sunTimer.expired()){
-      console.log("hi");
       let newSun = new Sun(random(backgroundOffset, tileSize * 9 + backgroundOffset), 0, random(tileSize * 1.25, tileSize* 4.75), "sky");
       sunArray.push(newSun);
       sunTimer.start();
     }
   }
 
+}
+
+function sunDisplay(){
+  for (let i = sunArray.length - 1; i >=  0; i--){
+    sunArray[i].display();
+    sunArray[i].update(i);
+  }
 }
 
 
