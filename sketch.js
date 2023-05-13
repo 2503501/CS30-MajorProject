@@ -30,8 +30,8 @@ let sunAmount = 150;
 let skysun;
 
 
-let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, readyLogo, setLogo, Plantlogo;
-let peashooter_gif;
+let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, readyLogo, setLogo, Plantlogo;
+let peashooter_gif, sunflower_gif;
 
 let pieceSelected = false;
 let draggedPiece = null;
@@ -74,7 +74,7 @@ class Sun{
     if (this.y <= this.finishY && !this.collected ){
       this.y += this.dy;
     }
-    if (mouseX >= this.x && mouseX  <= this.x + sun_diameter && mouseY >= this.y && mouseY  <=this.y + sun_diameter){
+    if (mouseX >= this.x && mouseX  <= this.x + sun_diameter && mouseY >= this.y && mouseY  <=this.y + sun_diameter && !this.collected){
       this.collected = true;
       this.finishX = backgroundOffset- tileSize* (7/12)
       this.finishY = tileSize/10
@@ -123,11 +123,13 @@ function setup() {
   sidewalk = loadImage("sidewalkextended.jpg");
   sunimage = loadImage("Sun.gif");
   peashooterSeed = loadImage("peashooterseed.PNG");
+  sunflowerSeed = loadImage("sunflowerseed.png");
   readyLogo = loadImage("ready.png");
   setLogo = loadImage("set.png");
   Plantlogo = loadImage("plant.png");
   
   peashooter_gif = loadImage("Peashooter.gif");
+  sunflower_gif = loadImage("Sunflower.gif");
 
   levelSelectButton = createButton("Select Level");
   levelSelectButton.position(width * 0.512, height* 0.15);
@@ -169,6 +171,10 @@ function mousePressed(){
         draggedPiece = "peashooter";
         draggedImage = loadImage("Peashooter.gif");
       }
+      else if (x ===1 && sunAmount >= 50){
+        draggedPiece = "sunflower";
+        draggedImage = loadImage("Sunflower.gif");
+      }
     }
 
 
@@ -187,8 +193,13 @@ function mouseReleased() {
   let x = Math.floor(mouseX/tileSize - backgroundOffset/tileSize);
   let y = Math.floor(mouseY/tileSize - tileSize /tileSize);
   if(draggedImage) {
-    if (draggedPiece === "peashooter" && x >= 0 && x <=8 && y >= 0 && y <= 4 && grid[y][x] === "0"){
-      sunAmount -= 100;
+    if (x >= 0 && x <=8 && y >= 0 && y <= 4 && grid[y][x] === "0"){
+      if (draggedPiece === "peashooter"){
+        sunAmount -= 100;
+      }
+      else if (draggedPiece === "sunflower"){
+        sunAmount -= 50;
+      }
       let newplant = new Plant(y, x, draggedPiece); 
       plantsArray.push(newplant);
       grid[y][x] = draggedPiece;
@@ -314,6 +325,7 @@ function backgroundDrawer(whichbackground){
     textSize(20);
     text(sunAmount, backgroundOffset- tileSize* (1/3),  tileSize* (13/16));
     image(peashooterSeed, backgroundOffset,0,tileSize*(1/2), tileSize*(3/4));
+    image(sunflowerSeed, backgroundOffset + tileSize * (1/2),0,tileSize*(1/2), tileSize*(3/4));
   }
 }
 
@@ -322,12 +334,6 @@ function displayDraggedPiece(){
     imageMode(CENTER);
     image(draggedImage, draggedImage.x, draggedImage.y, tileSize - plantOffset * 2, tileSize - plantOffset * 2);
   }
-}
-
-function gif_converter(picname){
-  let returner = picname;
-  returner = returner + "_gif";
-  return returner;
 }
 
 function displayreadysetPlant(status){
@@ -342,3 +348,9 @@ function displayreadysetPlant(status){
   }
 }
 
+
+function gif_converter(picname){
+  let returner = picname;
+  returner = returner + "_gif";
+  return returner;
+}
