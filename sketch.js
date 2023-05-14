@@ -26,7 +26,7 @@ let zombieArray = [];
 let sunArray = [];
 
 let sun_diameter;
-let sunAmount = 150;
+let sunAmount = 75;
 let skysun;
 
 
@@ -52,6 +52,16 @@ class Plant{
     this.row = y;
     this.x = x; 
     this.plant = whatplant;
+    this.sunflowerTimer = new Timer(6000);
+  }
+  produceSun(){
+    if (this.plant === "sunflower" && this.sunflowerTimer.expired()){
+      let newSun = new Sun(random(backgroundOffset + tileSize * this.x, backgroundOffset + tileSize * (this.x + 1) - sun_diameter) , tileSize * (this.row + 1), tileSize * (this.row + 1.65), "plant");
+      // backgroundOffset + sun_diameter * 1/2 + tileSize * this.x
+      sunArray.push(newSun);
+      this.sunflowerTimer = new Timer(24000);
+      this.sunflowerTimer.start();
+    }
   }
 
   display(){
@@ -69,10 +79,17 @@ class Sun{
     this.dx = null;
     this.collected = false;
     this.mode = mode;
+    this.velocity = -3;
+    this.acell = 0.2;
   }
   update(arraylocation){
-    if (this.y <= this.finishY && !this.collected ){
+    if (this.y <= this.finishY && !this.collected && this.mode === "sky"){
       this.y += this.dy;
+    }
+    else if (this.y <= this.finishY && !this.collected && this.mode === "plant"){
+      this.y += this.dy;
+      this.y += this.velocity
+      this.velocity += this.acell;
     }
     if (mouseX >= this.x && mouseX  <= this.x + sun_diameter && mouseY >= this.y && mouseY  <=this.y + sun_diameter && !this.collected){
       this.collected = true;
@@ -114,7 +131,7 @@ function setup() {
   scrollMax =  backgroundOffset+ tileSize * 9 - 500;
 
   scrollTimer = new Timer(1500);
-  sunTimer = new Timer(8500);
+  sunTimer = new Timer(9500);
 
   mainMenuBackground = loadImage("mainmenu.jpg");
   housePicture = loadImage("house.jpg");
@@ -145,13 +162,17 @@ function draw() {
   background(200);
   sunDroper();
   backgroundDrawer(gamestate);
-  for (let plant of plantsArray){
-    plant.display();
-  }
+  plantfunctions();
   sunDisplay();
-  
   displayDraggedPiece();
   
+}
+
+function plantfunctions(){
+  for (let i = plantsArray.length - 1; i >=  0; i--){
+    plantsArray[i].produceSun();
+    plantsArray[i].display(i);
+  }
 }
 
 
@@ -196,13 +217,17 @@ function mouseReleased() {
     if (x >= 0 && x <=8 && y >= 0 && y <= 4 && grid[y][x] === "0"){
       if (draggedPiece === "peashooter"){
         sunAmount -= 100;
+        let newplant = new Plant(y, x, draggedPiece); 
+        plantsArray.push(newplant);
+        grid[y][x] = draggedPiece;
       }
       else if (draggedPiece === "sunflower"){
         sunAmount -= 50;
+        let newplant = new Plant(y, x, draggedPiece); 
+        newplant.sunflowerTimer.start();
+        plantsArray.push(newplant);
+        grid[y][x] = draggedPiece;
       }
-      let newplant = new Plant(y, x, draggedPiece); 
-      plantsArray.push(newplant);
-      grid[y][x] = draggedPiece;
     }
     draggedPiece = null;
     draggedImage = null;
