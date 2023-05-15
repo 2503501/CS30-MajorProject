@@ -26,9 +26,7 @@ let zombieArray = [];
 let sunArray = [];
 
 let sun_diameter;
-let sunAmount = 75;
-let skysun;
-
+let sunAmount = 500;
 
 let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, readyLogo, setLogo, Plantlogo;
 let peashooter_gif, sunflower_gif;
@@ -48,16 +46,16 @@ let grid = [
 ];
 
 class Plant{
-  constructor(y, x, whatplant){
+  constructor(y, x, whatplant, health){
     this.row = y;
     this.x = x; 
     this.plant = whatplant;
+    this.health = health;
     this.sunflowerTimer = new Timer(6000);
   }
   produceSun(){
     if (this.plant === "sunflower" && this.sunflowerTimer.expired()){
       let newSun = new Sun(random(backgroundOffset + tileSize * this.x, backgroundOffset + tileSize * (this.x + 1) - sun_diameter) , tileSize * (this.row + 1), tileSize * (this.row + 1.65), "plant");
-      // backgroundOffset + sun_diameter * 1/2 + tileSize * this.x
       sunArray.push(newSun);
       this.sunflowerTimer = new Timer(24000);
       this.sunflowerTimer.start();
@@ -75,12 +73,14 @@ class Sun{
     this.y = y;
     this.finishY = targety;
     this.finishX - null;
-    this.dy = 2
+    this.dy = 2;
     this.dx = null;
     this.collected = false;
     this.mode = mode;
-    this.velocity = -3;
-    this.acell = 0.2;
+    if (mode === "plant"){
+      this.velocity = -3;
+      this.acell = 0.2;
+    }
   }
   update(arraylocation){
     if (this.y <= this.finishY && !this.collected && this.mode === "sky"){
@@ -88,13 +88,13 @@ class Sun{
     }
     else if (this.y <= this.finishY && !this.collected && this.mode === "plant"){
       this.y += this.dy;
-      this.y += this.velocity
+      this.y += this.velocity;
       this.velocity += this.acell;
     }
     if (mouseX >= this.x && mouseX  <= this.x + sun_diameter && mouseY >= this.y && mouseY  <=this.y + sun_diameter && !this.collected){
       this.collected = true;
-      this.finishX = backgroundOffset- tileSize* (7/12)
-      this.finishY = tileSize/10
+      this.finishX = backgroundOffset- tileSize* (7/12);
+      this.finishY = tileSize/10;
       this.dx = (this.x - this.finishX)/15;
       this.dy = (this.y - this.finishY) /15;
       sunAmount += 25;
@@ -113,7 +113,23 @@ class Sun{
 }
 
 
+function preload(){
+  mainMenuBackground = loadImage("images/mainmenu.jpg");
+  housePicture = loadImage("images/house.jpg");
+  backgroundFence = loadImage("images/fence.jpg");
+  lawn = loadImage("images/lawn.PNG");
+  sidewalk = loadImage("images/sidewalkextended.jpg");
+  sunimage = loadImage("images/Sun.gif");
+  peashooterSeed = loadImage("images/peashooterseed.PNG");
+  sunflowerSeed = loadImage("images/sunflowerseed.png");
+  readyLogo = loadImage("images/ready.png");
+  setLogo = loadImage("images/set.png");
+  Plantlogo = loadImage("images/plant.png");
+  
+  peashooter_gif = loadImage("images/Peashooter.gif");
+  sunflower_gif = loadImage("images/Sunflower.gif");
 
+}
 
 function setup() {
 
@@ -132,21 +148,6 @@ function setup() {
 
   scrollTimer = new Timer(1500);
   sunTimer = new Timer(9500);
-
-  mainMenuBackground = loadImage("mainmenu.jpg");
-  housePicture = loadImage("house.jpg");
-  backgroundFence = loadImage("fence.jpg");
-  lawn = loadImage("lawn.PNG");
-  sidewalk = loadImage("sidewalkextended.jpg");
-  sunimage = loadImage("Sun.gif");
-  peashooterSeed = loadImage("peashooterseed.PNG");
-  sunflowerSeed = loadImage("sunflowerseed.png");
-  readyLogo = loadImage("ready.png");
-  setLogo = loadImage("set.png");
-  Plantlogo = loadImage("plant.png");
-  
-  peashooter_gif = loadImage("Peashooter.gif");
-  sunflower_gif = loadImage("Sunflower.gif");
 
   levelSelectButton = createButton("Select Level");
   levelSelectButton.position(width * 0.512, height* 0.15);
@@ -190,11 +191,11 @@ function mousePressed(){
       //peashooter
       if (x ===0 && sunAmount >= 100){
         draggedPiece = "peashooter";
-        draggedImage = loadImage("Peashooter.gif");
+        draggedImage = loadImage("images/Peashooter.gif");
       }
       else if (x ===1 && sunAmount >= 50){
         draggedPiece = "sunflower";
-        draggedImage = loadImage("Sunflower.gif");
+        draggedImage = loadImage("images/Sunflower.gif");
       }
     }
 
@@ -217,13 +218,13 @@ function mouseReleased() {
     if (x >= 0 && x <=8 && y >= 0 && y <= 4 && grid[y][x] === "0"){
       if (draggedPiece === "peashooter"){
         sunAmount -= 100;
-        let newplant = new Plant(y, x, draggedPiece); 
+        let newplant = new Plant(y, x, draggedPiece, 100); 
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
       }
       else if (draggedPiece === "sunflower"){
         sunAmount -= 50;
-        let newplant = new Plant(y, x, draggedPiece); 
+        let newplant = new Plant(y, x, draggedPiece, 100); 
         newplant.sunflowerTimer.start();
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
