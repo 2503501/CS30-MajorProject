@@ -5,6 +5,8 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
+let testTimer;
+
 let scrollOffest = 0;
 let scrollTimer;
 let preSunTimer;
@@ -30,6 +32,7 @@ let sunAmount = 500;
 
 let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, readyLogo, setLogo, Plantlogo;
 let peashooter_gif, sunflower_gif;
+let zombiewalk_gif, zombiestill_gif, zombieattack_gif;
 
 let pieceSelected = false;
 let draggedPiece = null;
@@ -73,7 +76,7 @@ class Sun{
     this.y = y;
     this.finishY = targety;
     this.finishX - null;
-    this.dy = 2;
+    this.dy = 1.5;
     this.dx = null;
     this.collected = false;
     this.mode = mode;
@@ -112,6 +115,25 @@ class Sun{
   }
 }
 
+class Zombie{
+  constructor(x, y, whatzombie, health, speed){
+    this.x = x;
+    this.y = y; 
+    this.zombie = whatzombie;
+    this.health = health;
+    this.dx = speed;
+    this.state = "walk";
+  }
+  update(){
+    this.x -= this.dx;
+  }
+  
+  display(){
+    // let tempstring = this.zombie + this.state;
+    image(eval(gif_converter(this.zombie + this.state)), this.x, this.y * tileSize + tileSize * 5/8, tileSize * 1.45, tileSize+ tileSize * 3/8);
+  }
+
+}
 
 function preload(){
   mainMenuBackground = loadImage("images/mainmenu.jpg");
@@ -128,6 +150,10 @@ function preload(){
   
   peashooter_gif = loadImage("images/Peashooter.gif");
   sunflower_gif = loadImage("images/Sunflower.gif");
+
+  zombiestill_gif = loadImage("images/zombiestill.gif");
+  zombiewalk_gif = loadImage("images/zombiewalk.gif");
+  zombieattack_gif = loadImage("images/zombieattack.gif");
 
 }
 
@@ -148,6 +174,7 @@ function setup() {
 
   scrollTimer = new Timer(1500);
   sunTimer = new Timer(9500);
+  testTimer = new Timer(9500);
 
   levelSelectButton = createButton("Select Level");
   levelSelectButton.position(width * 0.512, height* 0.15);
@@ -162,17 +189,35 @@ function draw() {
   buttonhider();
   background(200);
   sunDroper();
+  zombiespawner();
   backgroundDrawer(gamestate);
   plantfunctions();
+  zombiefunctions();
   sunDisplay();
   displayDraggedPiece();
-  
+}
+
+function zombiespawner(){
+  if (gamestate === "adventure"){
+    if (testTimer.expired()){
+      let newzombie = new Zombie(width - tileSize * 1/3, Math.round(random(-0.4, 4.4)), "zombie", 100, 0.3);
+      zombieArray.push(newzombie);
+      testTimer.start();
+    } 
+  }
 }
 
 function plantfunctions(){
   for (let i = plantsArray.length - 1; i >=  0; i--){
     plantsArray[i].produceSun();
     plantsArray[i].display(i);
+  }
+}
+
+function zombiefunctions(){
+  for (let i = zombieArray.length - 1; i >=  0; i--){
+    zombieArray[i].update();
+    zombieArray[i].display();
   }
 }
 
@@ -322,6 +367,7 @@ function backgroundDrawer(whichbackground){
     else if (frameCount % 60 === 0 && countdownTimer === 1){
       gamestate = "adventure";
       sunTimer.start();
+      testTimer.start();
       countdownTimer = 4;
       readySetPlantStatus = null;
     }
