@@ -26,12 +26,13 @@ let buttons = [];
 let plantsArray = [];
 let zombieArray = [];
 let sunArray = [];
+let peaArray = [];
 
 let sun_diameter;
 let sunAmount = 500;
 
 let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, readyLogo, setLogo, Plantlogo;
-let peashooter_gif, sunflower_gif;
+let peashooter_gif, sunflower_gif, peamoving_gif;
 let zombiewalk_gif, zombiestill_gif, zombieattack_gif;
 
 let pieceSelected = false;
@@ -50,23 +51,50 @@ let grid = [
 
 class Plant{
   constructor(y, x, whatplant, health){
-    this.row = y;
+    this.y = y;
     this.x = x; 
     this.plant = whatplant;
     this.health = health;
     this.sunflowerTimer = new Timer(6000);
+    this.fireRate = new Timer(1500);
   }
   produceSun(){
     if (this.plant === "sunflower" && this.sunflowerTimer.expired()){
-      let newSun = new Sun(random(backgroundOffset + tileSize * this.x, backgroundOffset + tileSize * (this.x + 1) - sun_diameter) , tileSize * (this.row + 1), tileSize * (this.row + 1.65), "plant");
+      let newSun = new Sun(random(backgroundOffset + tileSize * this.x, backgroundOffset + tileSize * (this.x + 1) - sun_diameter) , tileSize * (this.y + 1), tileSize * (this.y + 1.65), "plant");
       sunArray.push(newSun);
       this.sunflowerTimer = new Timer(24000);
       this.sunflowerTimer.start();
     }
   }
+  attackZombie(){
+    if (this.plant === "peashooter" && this.fireRate.expired()){
+      for (let i = 0; i < zombieArray.length; i++){
+        if (this.y === zombieArray[i].y){
+          let newpea = new Pea(backgroundOffset + plantOffset *2.5 + tileSize * this.x , this.y - 0.2);
+          peaArray.push(newpea);
+        }
+      }
+      this.fireRate.start();
+    }
+  }
 
   display(){
-    image(eval(gif_converter(this.plant)), backgroundOffset + plantOffset  + tileSize * this.x, tileSize +plantOffset  + tileSize * this.row, tileSize - plantOffset * 2  , tileSize - plantOffset * 2 );
+    image(eval(gif_converter(this.plant)), backgroundOffset + plantOffset  + tileSize * this.x, tileSize +plantOffset  + tileSize * this.y, tileSize - plantOffset * 2  , tileSize - plantOffset * 2 );
+  }
+}
+
+class Pea{
+  constructor(x, y){
+    this.x = x;
+    this.y = y;
+    this.dx = 4;
+    this.state = "moving";
+  }
+  update(){
+    this.x += this.dx;
+  }
+  display(){
+    image(eval(gif_converter("pea" + this.state)), this.x, this.y * tileSize + tileSize * 1.5);
   }
 }
 
@@ -129,7 +157,6 @@ class Zombie{
   }
   
   display(){
-    // let tempstring = this.zombie + this.state;
     image(eval(gif_converter(this.zombie + this.state)), this.x, this.y * tileSize + tileSize * 5/8, tileSize * 1.45, tileSize+ tileSize * 3/8);
   }
 
@@ -150,6 +177,7 @@ function preload(){
   
   peashooter_gif = loadImage("images/Peashooter.gif");
   sunflower_gif = loadImage("images/Sunflower.gif");
+  peamoving_gif = loadImage("images/peashot.gif");
 
   zombiestill_gif = loadImage("images/zombiestill.gif");
   zombiewalk_gif = loadImage("images/zombiewalk.gif");
@@ -193,6 +221,7 @@ function draw() {
   backgroundDrawer(gamestate);
   plantfunctions();
   zombiefunctions();
+  peafunctions();
   sunDisplay();
   displayDraggedPiece();
 }
@@ -207,9 +236,18 @@ function zombiespawner(){
   }
 }
 
+function peafunctions(){
+  for (let i = peaArray.length -1; i >= 0; i--){
+    peaArray[i].update();
+    peaArray[i].display();
+  }
+}
+
+
 function plantfunctions(){
   for (let i = plantsArray.length - 1; i >=  0; i--){
     plantsArray[i].produceSun();
+    plantsArray[i].attackZombie();
     plantsArray[i].display(i);
   }
 }
@@ -264,6 +302,7 @@ function mouseReleased() {
       if (draggedPiece === "peashooter"){
         sunAmount -= 100;
         let newplant = new Plant(y, x, draggedPiece, 100); 
+        newplant.fireRate.start();
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
       }
