@@ -29,7 +29,7 @@ let sunArray = [];
 let peaArray = [];
 
 let sun_diameter;
-let sunAmount = 500;
+let sunAmount = 100;
 
 let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, readyLogo, setLogo, Plantlogo;
 let peashooter_gif, sunflower_gif, peamoving_gif;
@@ -69,8 +69,8 @@ class Plant{
   attackZombie(){
     if (this.plant === "peashooter" && this.fireRate.expired()){
       for (let i = 0; i < zombieArray.length; i++){
-        if (this.y === zombieArray[i].y){
-          let newpea = new Pea(backgroundOffset + plantOffset *2.5 + tileSize * this.x , this.y - 0.2);
+        if (this.y === zombieArray[i].y && backgroundOffset + plantOffset  + tileSize * this.x <= zombieArray[i].x + tileSize/3){
+          let newpea = new Pea(backgroundOffset + plantOffset *2.5 + tileSize * this.x , this.y );
           peaArray.push(newpea);
         }
       }
@@ -90,11 +90,21 @@ class Pea{
     this.dx = 4;
     this.state = "moving";
   }
-  update(){
+  update(arraylocation){
     this.x += this.dx;
+    for (let i = 0; i < zombieArray.length; i++){
+      if (this.y === zombieArray[i].y && this.x > zombieArray[i].x +20 && this.x < zombieArray[i].x + tileSize +25){
+        peaArray.splice(arraylocation, 1);
+        //add some kind of damage function for the zombie
+      }
+    }
+    // if the pea goes off the screen, remove it from the array
+    if (this.x > width + tileSize){
+      peaArray.splice(arraylocation, 1);
+    }
   }
   display(){
-    image(eval(gif_converter("pea" + this.state)), this.x, this.y * tileSize + tileSize * 1.5);
+    image(eval(gif_converter("pea" + this.state)), this.x, (this.y - 0.2) * tileSize + tileSize * 1.5);
   }
 }
 
@@ -238,7 +248,7 @@ function zombiespawner(){
 
 function peafunctions(){
   for (let i = peaArray.length -1; i >= 0; i--){
-    peaArray[i].update();
+    peaArray[i].update(i);
     peaArray[i].display();
   }
 }
