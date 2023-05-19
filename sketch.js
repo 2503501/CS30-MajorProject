@@ -29,11 +29,11 @@ let sunArray = [];
 let peaArray = [];
 
 let sun_diameter;
-let sunAmount = 100;
+let sunAmount = 500;
 
 let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, readyLogo, setLogo, Plantlogo;
 let peashooter_gif, sunflower_gif, peamoving_gif;
-let zombiewalk_gif, zombiestill_gif, zombieattack_gif;
+let zombiewalk_gif, zombiestill_gif, zombieattack_gif, zombiedead_gif, zombiehead_gif;
 
 let pieceSelected = false;
 let draggedPiece = null;
@@ -69,7 +69,7 @@ class Plant{
   attackZombie(){
     if (this.plant === "peashooter" && this.fireRate.expired()){
       for (let i = 0; i < zombieArray.length; i++){
-        if (this.y === zombieArray[i].y && backgroundOffset + plantOffset  + tileSize * this.x <= zombieArray[i].x + tileSize/3){
+        if (this.y === zombieArray[i].y && backgroundOffset + plantOffset  + tileSize * this.x <= zombieArray[i].x + tileSize/3 && zombieArray[i].x <backgroundOffset+ tileSize*9.5){
           let newpea = new Pea(backgroundOffset + plantOffset *2.5 + tileSize * this.x , this.y );
           peaArray.push(newpea);
         }
@@ -93,13 +93,13 @@ class Pea{
   update(arraylocation){
     this.x += this.dx;
     for (let i = 0; i < zombieArray.length; i++){
-      if (this.y === zombieArray[i].y && this.x > zombieArray[i].x +20 && this.x < zombieArray[i].x + tileSize +25){
+      if (this.y === zombieArray[i].y && this.x > zombieArray[i].x +50 && this.x < zombieArray[i].x + tileSize +55 && zombieArray[i].state === "walk"){
+        zombieArray[i].health -= 10;
         peaArray.splice(arraylocation, 1);
-        //add some kind of damage function for the zombie
       }
     }
     // if the pea goes off the screen, remove it from the array
-    if (this.x > width + tileSize){
+    if (this.x > width + tileSize * 10){
       peaArray.splice(arraylocation, 1);
     }
   }
@@ -161,13 +161,31 @@ class Zombie{
     this.health = health;
     this.dx = speed;
     this.state = "walk";
+    this.deadtimer = new Timer(2000);
+    this.zombiehead = loadImage("images/zombiehead.gif");
   }
-  update(){
-    this.x -= this.dx;
+  update(arraylocation){
+    if (this.state === "walk"){
+      this.x -= this.dx;
+      if (this.health <= 0){
+        this.state = "dead";
+        zombiedead_gif.reset();
+        this.zombiehead.reset();
+        this.deadtimer.start();
+      }
+    }
+    if (this.state === "dead"){
+      if (this.deadtimer.expired()){
+        zombieArray.splice(arraylocation,1);
+      }
+    }
   }
   
   display(){
     image(eval(gif_converter(this.zombie + this.state)), this.x, this.y * tileSize + tileSize * 5/8, tileSize * 1.45, tileSize+ tileSize * 3/8);
+    if (this.state === "dead"){
+      image(this.zombiehead, this.x + tileSize * 0.2, this.y * tileSize + tileSize * 5/8);
+    }
   }
 
 }
@@ -192,6 +210,8 @@ function preload(){
   zombiestill_gif = loadImage("images/zombiestill.gif");
   zombiewalk_gif = loadImage("images/zombiewalk.gif");
   zombieattack_gif = loadImage("images/zombieattack.gif");
+  zombiedead_gif = loadImage("images/zombiedie.gif");
+  zombiehead_gif = loadImage("images/zombiehead.gif");
 
 }
 
@@ -239,8 +259,10 @@ function draw() {
 function zombiespawner(){
   if (gamestate === "adventure"){
     if (testTimer.expired()){
-      let newzombie = new Zombie(width - tileSize * 1/3, Math.round(random(-0.4, 4.4)), "zombie", 100, 0.3);
-      zombieArray.push(newzombie);
+      for (let i = 0; i<2; i++){
+        let newzombie = new Zombie(width - tileSize *0.2, Math.round(random(-0.4, 4.4)), "zombie", 100, 0.3);
+        zombieArray.push(newzombie);
+      }
       testTimer.start();
     } 
   }
@@ -248,8 +270,8 @@ function zombiespawner(){
 
 function peafunctions(){
   for (let i = peaArray.length -1; i >= 0; i--){
-    peaArray[i].update(i);
     peaArray[i].display();
+    peaArray[i].update(i);
   }
 }
 
@@ -263,9 +285,9 @@ function plantfunctions(){
 }
 
 function zombiefunctions(){
-  for (let i = zombieArray.length - 1; i >=  0; i--){
-    zombieArray[i].update();
+  for (let i = zombieArray.length - 1; i >= 0; i--){
     zombieArray[i].display();
+    zombieArray[i].update(i);
   }
 }
 
