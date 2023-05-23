@@ -72,6 +72,7 @@ class Plant{
         if (this.y === zombieArray[i].y && backgroundOffset + plantOffset  + tileSize * this.x <= zombieArray[i].x + tileSize/3 && zombieArray[i].x <backgroundOffset+ tileSize*9.5){
           let newpea = new Pea(backgroundOffset + plantOffset *2.5 + tileSize * this.x , this.y );
           peaArray.push(newpea);
+          break;
         }
       }
       this.fireRate.start();
@@ -90,38 +91,37 @@ class Pea{
     this.dx = 4;
     this.state = "moving";
     this.hitTimer;
-    this.hit = loadImage("images/peahit.png")
+    this.hit = loadImage("images/peahit.png");
   }
   update(arraylocation){
     if (this.state === "moving"){
       this.x += this.dx;
     }
     for (let i = 0; i < zombieArray.length; i++){
-      if (this.y === zombieArray[i].y && this.x > zombieArray[i].x +90 && this.x < zombieArray[i].x + tileSize +95 && zombieArray[i].state === "walk" && this.state === "moving"){
+      if (this.y === zombieArray[i].y && this.x > zombieArray[i].x +tileSize * 0.68 && this.x < zombieArray[i].x + tileSize +tileSize * 0.72 && (zombieArray[i].state === "walk" || zombieArray[i].state === "attack")  && this.state === "moving"){
+        this.state = "hit";
         zombieArray[i].health -= 10;
-        this.state = "hit"
         this.hitTimer =  new Timer(100);
         this.hitTimer.start();
       }
     }
     if (this.state === "hit"){
       if (this.hitTimer.expired()){
-        console.log("hi");
         peaArray.splice(arraylocation, 1);
       }
     }
     
     // if the pea goes off the screen, remove it from the array
-    if (this.x > width + tileSize * 10){
+    if (this.x > width + tileSize * 5){
       peaArray.splice(arraylocation, 1);
     }
   }
   display(){
     if (this.state === "moving"){
-      image(eval(gif_converter("pea" + this.state)), this.x, (this.y - 0.2) * tileSize + tileSize * 1.5);
+      image(peamoving_gif, this.x, (this.y - 0.2) * tileSize + tileSize * 1.5);
     }
     else if (this.state === "hit"){
-      image(this.hit, this.x, (this.y - 0.2) * tileSize + tileSize * 1.5)
+      image(this.hit, this.x, (this.y - 0.2) * tileSize + tileSize * 1.5);
     }
   }
 }
@@ -192,7 +192,24 @@ class Zombie{
         this.zombiehead.reset();
         this.deadtimer.start();
       }
+      for (let i = 0; i < plantsArray.length; i++){
+        if (this.y === plantsArray[i].y && this.x < (plantsArray[i].x - 0.1) * tileSize + backgroundOffset + plantOffset && this.x > (plantsArray[i].x -0.75) * tileSize + backgroundOffset + plantOffset){
+          this.state = "attack";
+          break;
+        }
+      }
     }
+    if (this.state === "attack"){
+      this.state = "walk";
+      for (let i = 0; i < plantsArray.length; i++){
+        if (this.y === plantsArray[i].y && this.x < (plantsArray[i].x - 0.1) * tileSize + backgroundOffset + plantOffset && this.x > (plantsArray[i].x -0.75) * tileSize + backgroundOffset + plantOffset){
+          this.state = "attack";
+          plantsArray[i].health -= 0.02;
+          console.log(plantsArray[i].health);
+        }
+      }
+    }
+
     if (this.state === "dead"){
       if (this.deadtimer.expired()){
         zombieArray.splice(arraylocation,1);
@@ -201,13 +218,14 @@ class Zombie{
   }
   
   display(){
-    if (this.state === "walk"){
+    if (this.state === "walk" || this.state === "attack"){
       image(eval(gif_converter(this.zombie + this.state)), this.x, this.y * tileSize + tileSize * 5/8, tileSize * 1.45, tileSize+ tileSize * 3/8);
     }
-    if (this.state === "dead"){
+    else if (this.state === "dead"){
       image(this.zombiedeath, this.x, this.y * tileSize + tileSize * 5/8, tileSize * 1.45, tileSize+ tileSize * 3/8);
       image(this.zombiehead, this.x + tileSize * 0.7, this.y * tileSize + tileSize * 5/8, tileSize *1.1, tileSize*1.3);
     }
+    
   }
 
 }
