@@ -5,7 +5,7 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
-let testTimer;
+let plantingTimer;
 
 let scrollOffest = 0;
 let scrollTimer;
@@ -20,6 +20,7 @@ let backgroundOffset;
 let plantOffset;
 let tileSize;
 let gamestate = "main";
+let levelstate = "planting";
 let levelSelectButton;
 let buttons = [];
 
@@ -48,6 +49,8 @@ let grid = [
   ["0","0","0","0","0","0","0","0","0"],
   ["0","0","0","0","0","0","0","0","0"]
 ];
+
+let lvl1 = [10, "zombie", 8, "zombie", 4, "zombie", 7, "zombie"];
 
 class Plant{
   constructor(y, x, whatplant, health){
@@ -202,7 +205,6 @@ class Zombie{
       for (let i = 0; i < plantsArray.length; i++){
         if (this.y === plantsArray[i].y && this.x < (plantsArray[i].x - 0.1) * tileSize + backgroundOffset + plantOffset && this.x > (plantsArray[i].x -0.75) * tileSize + backgroundOffset + plantOffset){
           this.state = "attack";
-          this.zombieeating.reset();
           break;
         }
       }
@@ -212,7 +214,7 @@ class Zombie{
       for (let i = 0; i < plantsArray.length; i++){
         if (this.y === plantsArray[i].y && this.x < (plantsArray[i].x - 0.1) * tileSize + backgroundOffset + plantOffset && this.x > (plantsArray[i].x -0.75) * tileSize + backgroundOffset + plantOffset){
           this.state = "attack";
-          plantsArray[i].health -= 0.08;
+          plantsArray[i].health -= 0.25;
         }
       }
       if (this.health <= 0){
@@ -288,7 +290,7 @@ function setup() {
 
   scrollTimer = new Timer(1500);
   sunTimer = new Timer(9500);
-  testTimer = new Timer(9500);
+  plantingTimer = new Timer(9500);
 
   levelSelectButton = createButton("Select Level");
   levelSelectButton.position(width * 0.512, height* 0.15);
@@ -303,7 +305,7 @@ function draw() {
   buttonhider();
   background(200);
   sunDroper();
-  zombiespawner();
+  // zombiespawner();
   backgroundDrawer(gamestate);
   plantfunctions();
   zombiefunctions();
@@ -312,14 +314,25 @@ function draw() {
   displayDraggedPiece();
 }
 
+function zombieReader(){
+  if (levelstate === "planting"){
+    if (plantingTimer.expired()){
+      levelstate = "start";
+    }
+  }
+  if (levelstate === "start"){
+
+  }
+}
+
 function zombiespawner(){
   if (gamestate === "adventure"){
-    if (testTimer.expired()){
+    if (plantingTimer.expired()){
       for (let i = 0; i<1; i++){
-        let newzombie = new Zombie(width - tileSize *0.2, Math.round(random(1, 1.2)), "zombie", 100, 0.3, "images/zombieattack.gif");
+        let newzombie = new Zombie(width - tileSize * 0.7, Math.round(random(1, 1.2)), "zombie", 100, 0.3, "images/zombieattack.gif");
         zombieArray.push(newzombie);
       }
-      testTimer.start();
+      plantingTimer.start();
     } 
   }
 }
@@ -492,7 +505,7 @@ function backgroundDrawer(whichbackground){
     else if (frameCount % 60 === 0 && countdownTimer === 1){
       gamestate = "adventure";
       sunTimer.start();
-      testTimer.start();
+      plantingTimer.start();
       countdownTimer = 4;
       readySetPlantStatus = null;
     }
