@@ -50,7 +50,9 @@ let grid = [
   ["0","0","0","0","0","0","0","0","0"]
 ];
 
-let lvl1 = [10, "zombie", 8, "zombie", 4, "zombie", 7, "zombie"];
+let lvl1 = [3, "zombie", 8, "zombie", 4, "zombie", 7, "zombie", "end"];
+let levelposition = 0;
+let leveltimer;
 
 class Plant{
   constructor(y, x, whatplant, health){
@@ -291,6 +293,7 @@ function setup() {
   scrollTimer = new Timer(1500);
   sunTimer = new Timer(9500);
   plantingTimer = new Timer(9500);
+  plantingTimer.pause();
 
   levelSelectButton = createButton("Select Level");
   levelSelectButton.position(width * 0.512, height* 0.15);
@@ -305,6 +308,7 @@ function draw() {
   buttonhider();
   background(200);
   sunDroper();
+  zombieReader();
   // zombiespawner();
   backgroundDrawer(gamestate);
   plantfunctions();
@@ -315,26 +319,40 @@ function draw() {
 }
 
 function zombieReader(){
-  if (levelstate === "planting"){
+  if (levelstate === "planting" && gamestate === "adventure"){
     if (plantingTimer.expired()){
       levelstate = "start";
+      leveltimer = new Timer(10);
+      leveltimer.start();
     }
   }
-  if (levelstate === "start"){
-
+  if (levelstate === "start" && leveltimer.expired()){
+    console.log("check1");
+    if (Number.isInteger(lvl1[levelposition])){
+      let tempvalue = lvl1[levelposition] * 1000
+      levelposition++;
+      leveltimer = new Timer(tempvalue);
+      leveltimer.start();
+      console.log("check2");
+    }
+    else{
+      if (lvl1[levelposition][0] === "z"){
+        console.log("check3");
+        levelposition++;
+        zombiespawner();
+        leveltimer = new Timer(10);
+        leveltimer.start();
+      }
+      if (lvl1[levelposition][0] === "e"){
+        console.log("end");
+      }
+    }
   }
 }
 
 function zombiespawner(){
-  if (gamestate === "adventure"){
-    if (plantingTimer.expired()){
-      for (let i = 0; i<1; i++){
-        let newzombie = new Zombie(width - tileSize * 0.7, Math.round(random(1, 1.2)), "zombie", 100, 0.3, "images/zombieattack.gif");
-        zombieArray.push(newzombie);
-      }
-      plantingTimer.start();
-    } 
-  }
+      let newzombie = new Zombie(width - tileSize * 0.7, Math.round(random(1, 1.2)), "zombie", 100, 0.3, "images/zombieattack.gif");
+      zombieArray.push(newzombie);
 }
 
 function peafunctions(){
