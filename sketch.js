@@ -34,7 +34,7 @@ let sunAmount = 500;
 
 let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, readyLogo, setLogo, Plantlogo;
 let peashooter_gif, sunflower_gif, peamoving_gif;
-let zombiewalk_gif, zombiestill_gif, zombieattack_gif, zombiedead_gif, zombiehead_gif;
+let zombiewalk_gif, zombiestill_gif, conewalk_gif, conestill_gif, bucketwalk_gif, bucketstill_gif, zombiedead_gif, zombiehead_gif;
 
 let pieceSelected = false;
 let draggedPiece = null;
@@ -50,7 +50,7 @@ let grid = [
   ["0","0","0","0","0","0","0","0","0"]
 ];
 
-let lvl1 = [3, "zombie", 8, "zombie", 4, "zombie", 7, "zombie", "end"];
+let lvl1 = [3, "zombie", 5, "cone", 8, "zombie", 4, "zombie", 7, "zombie", "end"];
 let levelposition = 0;
 let leveltimer;
 
@@ -269,7 +269,10 @@ function preload(){
 
   zombiestill_gif = loadImage("images/zombiestill.gif");
   zombiewalk_gif = loadImage("images/zombiewalk.gif");
-  zombieattack_gif = loadImage("images/zombieattack.gif");
+  conestill_gif = loadImage("images/conestill.gif");
+  conewalk_gif = loadImage("images/conewalk.gif");
+  bucketstill_gif = loadImage("images/bucketstill.gif");
+  bucketwalk_gif = loadImage("images/bucketwalk.gif");
   zombiedead_gif = loadImage("images/zombiedie.gif");
   zombiehead_gif = loadImage("images/zombiehead.gif");
 
@@ -329,17 +332,25 @@ function zombieReader(){
   if (levelstate === "start" && leveltimer.expired()){
     console.log("check1");
     if (Number.isInteger(lvl1[levelposition])){
-      let tempvalue = lvl1[levelposition] * 1000
+      let tempvalue = lvl1[levelposition] * 1000;
       levelposition++;
       leveltimer = new Timer(tempvalue);
       leveltimer.start();
       console.log("check2");
     }
     else{
-      if (lvl1[levelposition][0] === "z"){
+      if (lvl1[levelposition][0] === "z" || lvl1[levelposition][0] === "c" || lvl1[levelposition][0] === "b"){
         console.log("check3");
+        if (lvl1[levelposition][0] === "z"){
+          zombiespawner("zombie", 100, "images/zombieattack.gif");
+        }
+        else if (lvl1[levelposition][0] === "c"){
+          zombiespawner("cone", 180, "images/coneattack.gif");
+        }
+        else{
+          zombiespawner("bucket", 100, "images/bucketattack.gif");
+        }
         levelposition++;
-        zombiespawner();
         leveltimer = new Timer(10);
         leveltimer.start();
       }
@@ -350,9 +361,9 @@ function zombieReader(){
   }
 }
 
-function zombiespawner(){
-      let newzombie = new Zombie(width - tileSize * 0.7, Math.round(random(1, 1.2)), "zombie", 100, 0.3, "images/zombieattack.gif");
-      zombieArray.push(newzombie);
+function zombiespawner(zombie, health, attackimage){
+  let newzombie = new Zombie(width - tileSize * 0.7, Math.round(random(-0.4, 4.4)), zombie, health, 0.3, attackimage);
+  zombieArray.push(newzombie);
 }
 
 function peafunctions(){
