@@ -257,7 +257,7 @@ function preload(){
   lawn = loadImage("images/lawn.PNG");
   sidewalk = loadImage("images/sidewalkextended.jpg");
   sunimage = loadImage("images/Sun.gif");
-  peashooterSeed = loadImage("images/peashooterseed.PNG");
+  peashooterSeed = loadImage("images/peashooterseed.png");
   sunflowerSeed = loadImage("images/sunflowerseed.png");
   readyLogo = loadImage("images/ready.png");
   setLogo = loadImage("images/set.png");
