@@ -30,7 +30,7 @@ let sunArray = [];
 let peaArray = [];
 
 let sun_diameter;
-let sunAmount = 500;
+let sunAmount = 75;
 
 let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, readyLogo, setLogo, Plantlogo;
 let peashooter_gif, sunflower_gif, peamoving_gif;
@@ -50,7 +50,7 @@ let grid = [
   ["0","0","0","0","0","0","0","0","0"]
 ];
 
-let lvl1 = [3, "zombie", 5, "cone", 8, "zombie", 4, "zombie", 7, "zombie", "end"];
+let lvl1 = [3, "zombie", 5, "cone", 3, "bucket", 8, "zombie", 4, "zombie", 7, "zombie", "end"];
 let levelposition = 0;
 let leveltimer;
 
@@ -74,8 +74,9 @@ class Plant{
   attackZombie(){
     if (this.plant === "peashooter" && this.fireRate.expired()){
       for (let i = 0; i < zombieArray.length; i++){
-        if (this.y === zombieArray[i].y && backgroundOffset + plantOffset  + tileSize * this.x <= zombieArray[i].x + tileSize * 1.3 && zombieArray[i].x <backgroundOffset+ tileSize*9.1){
-          let newpea = new Pea(backgroundOffset + plantOffset *2.5 + tileSize * this.x , this.y );
+        // if (this.y === zombieArray[i].y && backgroundOffset + plantOffset  + tileSize * this.x <= zombieArray[i].x + tileSize * 1.3 && zombieArray[i].x <backgroundOffset+ tileSize*9.1){
+        if (this.y === zombieArray[i].y && backgroundOffset + plantOffset * -5 + tileSize * this.x <= zombieArray[i].x && zombieArray[i].x <backgroundOffset+ tileSize*9.1){
+          let newpea = new Pea(backgroundOffset + plantOffset *3 + tileSize * this.x , this.y );
           peaArray.push(newpea);
           break;
         }
@@ -205,7 +206,7 @@ class Zombie{
         this.deadtimer.start();
       }
       for (let i = 0; i < plantsArray.length; i++){
-        if (this.y === plantsArray[i].y && this.x < (plantsArray[i].x - 0.1) * tileSize + backgroundOffset + plantOffset && this.x > (plantsArray[i].x -0.75) * tileSize + backgroundOffset + plantOffset){
+        if (this.y === plantsArray[i].y && this.x < (plantsArray[i].x - 0.15) * tileSize + backgroundOffset + plantOffset && this.x > (plantsArray[i].x -0.95) * tileSize + backgroundOffset + plantOffset){
           this.state = "attack";
           break;
         }
@@ -295,8 +296,11 @@ function setup() {
 
   scrollTimer = new Timer(1500);
   sunTimer = new Timer(9500);
-  plantingTimer = new Timer(9500);
+  sunTimer.pause();
+  plantingTimer = new Timer(14000);
   plantingTimer.pause();
+  leveltimer = new Timer(10);
+  leveltimer.pause();
 
   levelSelectButton = createButton("Select Level");
   levelSelectButton.position(width * 0.512, height* 0.15);
@@ -325,7 +329,6 @@ function zombieReader(){
   if (levelstate === "planting" && gamestate === "adventure"){
     if (plantingTimer.expired()){
       levelstate = "start";
-      leveltimer = new Timer(10);
       leveltimer.start();
     }
   }
@@ -345,10 +348,10 @@ function zombieReader(){
           zombiespawner("zombie", 100, "images/zombieattack.gif");
         }
         else if (lvl1[levelposition][0] === "c"){
-          zombiespawner("cone", 180, "images/coneattack.gif");
+          zombiespawner("cone", 250, "images/coneattack.gif");
         }
         else{
-          zombiespawner("bucket", 100, "images/bucketattack.gif");
+          zombiespawner("bucket", 600, "images/bucketattack.gif");
         }
         levelposition++;
         leveltimer = new Timer(10);
