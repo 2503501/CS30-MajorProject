@@ -50,7 +50,7 @@ let grid = [
   ["0","0","0","0","0","0","0","0","0"]
 ];
 
-let lvl1 = [3, "zombie", 5, "cone", 3, "bucket", 8, "zombie", 4, "zombie", 7, "zombie", "end"];
+let lvl1 = [3, "zombie", "end"];
 let levelposition = 0;
 let leveltimer;
 
@@ -325,9 +325,16 @@ function draw() {
   displayDraggedPiece();
 }
 
+// things that need to be reset on a lose or a win
+// plant array, pea array, zombie array, sun array
+//planting timer, levelstate to planting, gamestate, level timer
+
+
 function zombieReader(){
   if (levelstate === "planting" && gamestate === "adventure"){
     if (plantingTimer.expired()){
+      plantingTimer.start();
+      plantingTimer.pause();
       levelstate = "start";
       leveltimer.start();
     }
@@ -341,6 +348,22 @@ function zombieReader(){
       leveltimer.start();
       console.log("check2");
     }
+    else if (Array.isArray(lvl1[levelposition])){
+      for (let i = 0; i < lvl1[levelposition].length; i++){
+        if (lvl1[levelposition][i][0] === "z"){
+          zombiespawner("zombie", 100, "images/zombieattack.gif");
+        }
+        else if (lvl1[levelposition][i][0] === "c"){
+          zombiespawner("cone", 250, "images/coneattack.gif");
+        }
+        else if (lvl1[levelposition][i][0] === "b"){
+          zombiespawner("bucket", 600, "images/bucketattack.gif");
+        }
+      }
+      levelposition++;
+      leveltimer = new Timer(10);
+      leveltimer.start();
+    }
     else{
       if (lvl1[levelposition][0] === "z" || lvl1[levelposition][0] === "c" || lvl1[levelposition][0] === "b"){
         console.log("check3");
@@ -350,7 +373,7 @@ function zombieReader(){
         else if (lvl1[levelposition][0] === "c"){
           zombiespawner("cone", 250, "images/coneattack.gif");
         }
-        else{
+        else if (lvl1[levelposition][0] === "b"){
           zombiespawner("bucket", 600, "images/bucketattack.gif");
         }
         levelposition++;
@@ -358,8 +381,17 @@ function zombieReader(){
         leveltimer.start();
       }
       if (lvl1[levelposition][0] === "e"){
-        console.log("end");
+        levelstate = "stopspawning";
+        leveltimer = new Timer(10);
+        leveltimer.pause();
       }
+    }
+  }
+  else if(levelstate === "stopspawning"){
+    if (zombieArray.length === 0){
+      levelstate === "planting";
+      console.log("win");
+      // change the game state to a win
     }
   }
 }
@@ -388,8 +420,16 @@ function plantfunctions(){
 
 function zombiefunctions(){
   for (let i = zombieArray.length - 1; i >= 0; i--){
-    zombieArray[i].display();
     zombieArray[i].update(i);
+  }
+
+  //display zombies top to down so that zombies legs will not overlap over a zombies face in another row
+  for (let i = 0; i <= 4; i++){
+    for (let a = 0; a < zombieArray.length ; a++){
+      if (zombieArray[a].y === i){
+        zombieArray[a].display(i);
+      }
+    }
   }
 }
 
