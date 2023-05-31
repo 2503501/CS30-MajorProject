@@ -31,6 +31,7 @@ let peaArray = [];
 
 let sun_diameter;
 let sunAmount = 75;
+let alpha = 0;
 
 let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, readyLogo, setLogo, Plantlogo;
 let peashooter_gif, sunflower_gif, peamoving_gif;
@@ -339,7 +340,7 @@ function zombieReader(){
       leveltimer.start();
     }
   }
-  if (levelstate === "start" && leveltimer.expired()){
+  else if (levelstate === "start" && leveltimer.expired()){
     console.log("check1");
     if (Number.isInteger(lvl1[levelposition])){
       let tempvalue = lvl1[levelposition] * 1000;
@@ -390,8 +391,9 @@ function zombieReader(){
   else if(levelstate === "stopspawning"){
     if (zombieArray.length === 0){
       levelstate === "planting";
+      levelposition = 0;
+      gamestate = "win";
       console.log("win");
-      // change the game state to a win
     }
   }
 }
@@ -608,6 +610,40 @@ function backgroundDrawer(whichbackground){
     text(sunAmount, backgroundOffset- tileSize* (1/3),  tileSize* (13/16));
     image(peashooterSeed, backgroundOffset,0,tileSize*(1/2), tileSize*(3/4));
     image(sunflowerSeed, backgroundOffset + tileSize * (1/2),0,tileSize*(1/2), tileSize*(3/4));
+  }
+  else if (gamestate === "win"){
+
+    //background images
+    image(lawn, backgroundOffset, tileSize, tileSize*9,tileSize*5);
+    image(housePicture, 0, 0, backgroundOffset, height);
+    image(backgroundFence, backgroundOffset, 0, tileSize*9, tileSize);
+    image(sidewalk,backgroundOffset+ tileSize * 9, 0, width - (backgroundOffset+ tileSize * 9) + 500, height);
+
+
+    //taskbar with seed packets, and sun counter
+    fill(218, 160, 109);
+    stroke(144,69,30);
+    strokeWeight(4);
+    ellipseMode(CENTER);
+    rect(backgroundOffset, 0, tileSize*(1/2)*6, tileSize *(3/4));
+    rect(backgroundOffset- tileSize* (2/3), 0 ,tileSize* (2/3), tileSize*(7/8));
+    ellipse(backgroundOffset- tileSize* (1/3), tileSize/3, sun_diameter);
+    image(sunimage, backgroundOffset- tileSize* (7/12), tileSize/10, sun_diameter, sun_diameter);
+    line(backgroundOffset- tileSize* (2/3), tileSize* (2/3),backgroundOffset, tileSize* (2/3));
+    fill(255);
+    textAlign(CENTER);
+    textSize(20);
+    text(sunAmount, backgroundOffset- tileSize* (1/3),  tileSize* (13/16));
+    image(peashooterSeed, backgroundOffset,0,tileSize*(1/2), tileSize*(3/4));
+    image(sunflowerSeed, backgroundOffset + tileSize * (1/2),0,tileSize*(1/2), tileSize*(3/4));
+
+    fill(255,255,255, alpha);
+    rect(0, 0, width, height);
+    alpha++;
+    if (alpha >= 253){
+      alpha = 0;
+      gamestate = "main";
+    }
   }
 }
 
