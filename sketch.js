@@ -33,7 +33,7 @@ let sun_diameter;
 let sunAmount = 75;
 let alpha = 0;
 
-let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, readyLogo, setLogo, Plantlogo;
+let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, readyLogo, setLogo, Plantlogo, trophy;
 let peashooter_gif, sunflower_gif, peamoving_gif;
 let zombiewalk_gif, zombiestill_gif, conewalk_gif, conestill_gif, bucketwalk_gif, bucketstill_gif, zombiedead_gif, zombiehead_gif;
 
@@ -264,6 +264,7 @@ function preload(){
   readyLogo = loadImage("images/ready.png");
   setLogo = loadImage("images/set.png");
   Plantlogo = loadImage("images/plant.png");
+  trophy = loadImage("images/trophy.png");
   
   peashooter_gif = loadImage("images/Peashooter.gif");
   sunflower_gif = loadImage("images/Sunflower.gif");
@@ -332,68 +333,73 @@ function draw() {
 
 
 function zombieReader(){
-  if (levelstate === "planting" && gamestate === "adventure"){
-    if (plantingTimer.expired()){
-      plantingTimer.start();
-      plantingTimer.pause();
-      levelstate = "start";
-      leveltimer.start();
-    }
-  }
-  else if (levelstate === "start" && leveltimer.expired()){
-    console.log("check1");
-    if (Number.isInteger(lvl1[levelposition])){
-      let tempvalue = lvl1[levelposition] * 1000;
-      levelposition++;
-      leveltimer = new Timer(tempvalue);
-      leveltimer.start();
-      console.log("check2");
-    }
-    else if (Array.isArray(lvl1[levelposition])){
-      for (let i = 0; i < lvl1[levelposition].length; i++){
-        if (lvl1[levelposition][i][0] === "z"){
-          zombiespawner("zombie", 100, "images/zombieattack.gif");
-        }
-        else if (lvl1[levelposition][i][0] === "c"){
-          zombiespawner("cone", 250, "images/coneattack.gif");
-        }
-        else if (lvl1[levelposition][i][0] === "b"){
-          zombiespawner("bucket", 600, "images/bucketattack.gif");
-        }
+  if (gamestate === "adventure"){
+    if (levelstate === "planting"){
+      if (plantingTimer.expired()){
+        plantingTimer.start();
+        plantingTimer.pause();
+        levelstate = "start";
+        leveltimer.start();
       }
-      levelposition++;
-      leveltimer = new Timer(10);
-      leveltimer.start();
     }
-    else{
-      if (lvl1[levelposition][0] === "z" || lvl1[levelposition][0] === "c" || lvl1[levelposition][0] === "b"){
-        console.log("check3");
-        if (lvl1[levelposition][0] === "z"){
-          zombiespawner("zombie", 100, "images/zombieattack.gif");
-        }
-        else if (lvl1[levelposition][0] === "c"){
-          zombiespawner("cone", 250, "images/coneattack.gif");
-        }
-        else if (lvl1[levelposition][0] === "b"){
-          zombiespawner("bucket", 600, "images/bucketattack.gif");
+    else if (levelstate === "start" && leveltimer.expired()){
+      if (Number.isInteger(lvl1[levelposition])){
+        let tempvalue = lvl1[levelposition] * 1000;
+        levelposition++;
+        leveltimer = new Timer(tempvalue);
+        leveltimer.start();
+      }
+      else if (Array.isArray(lvl1[levelposition])){
+        for (let i = 0; i < lvl1[levelposition].length; i++){
+          if (lvl1[levelposition][i][0] === "z"){
+            zombiespawner("zombie", 100, "images/zombieattack.gif");
+          }
+          else if (lvl1[levelposition][i][0] === "c"){
+            zombiespawner("cone", 250, "images/coneattack.gif");
+          }
+          else if (lvl1[levelposition][i][0] === "b"){
+            zombiespawner("bucket", 600, "images/bucketattack.gif");
+          }
         }
         levelposition++;
         leveltimer = new Timer(10);
         leveltimer.start();
       }
-      if (lvl1[levelposition][0] === "e"){
-        levelstate = "stopspawning";
-        leveltimer = new Timer(10);
-        leveltimer.pause();
+      else{
+        if (lvl1[levelposition][0] === "z" || lvl1[levelposition][0] === "c" || lvl1[levelposition][0] === "b"){
+          if (lvl1[levelposition][0] === "z"){
+            zombiespawner("zombie", 100, "images/zombieattack.gif");
+          }
+          else if (lvl1[levelposition][0] === "c"){
+            zombiespawner("cone", 250, "images/coneattack.gif");
+          }
+          else if (lvl1[levelposition][0] === "b"){
+            zombiespawner("bucket", 600, "images/bucketattack.gif");
+          }
+          levelposition++;
+          leveltimer = new Timer(10);
+          leveltimer.start();
+        }
+        if (lvl1[levelposition][0] === "e"){
+          levelstate = "stopspawning";
+          leveltimer = new Timer(10);
+          leveltimer.pause();
+        }
       }
     }
-  }
-  else if(levelstate === "stopspawning"){
-    if (zombieArray.length === 0){
-      levelstate === "planting";
-      levelposition = 0;
-      gamestate = "win";
-      console.log("win");
+    else if(levelstate === "stopspawning"){
+      if (zombieArray.length === 0){
+        levelstate === "planting";
+        levelposition = 0;
+        trophy.width = 100;
+        trophy.x = width/2 - trophy.width/2;
+        trophy.y = height/2 - trophy.width/2 - 10;
+        trophy.state = "notclicked";
+        trophy.dy = -3;
+        trophy.acell = +0.1;
+
+        gamestate = "win";
+      }
     }
   }
 }
@@ -456,6 +462,11 @@ function mousePressed(){
         draggedPiece = "sunflower";
         draggedImage = loadImage("images/Sunflower.gif");
       }
+    }
+  }
+  if (gamestate === "win"){
+    if (mouseX > trophy.x && mouseX <trophy.x + trophy.width && mouseY > trophy.y && mouseY < trophy.y + trophy.width){
+      trophy.state = "clicked";
     }
   }
 }
@@ -637,14 +648,21 @@ function backgroundDrawer(whichbackground){
     image(peashooterSeed, backgroundOffset,0,tileSize*(1/2), tileSize*(3/4));
     image(sunflowerSeed, backgroundOffset + tileSize * (1/2),0,tileSize*(1/2), tileSize*(3/4));
 
-    fill(255,255,255, alpha);
-    rect(0, 0, width, height);
-    alpha++;
-    if (alpha >= 253){
-      alpha = 0;
-      gamestate = "main";
+    image(trophy, trophy.x, trophy.y, trophy.width, trophy.width);
+
+    if (trophy.state === "notclicked" && trophy.y <= height/2 - trophy.width/2){
+      console.log("yay");
+      trophy.y += trophy.dy;
+      trophy.dy += trophy.acell;
     }
-  }
+    if (trophy.state === "clicked"){
+      trophy.width += 0.5;
+      if (trophy.width > 180){
+        gamestate = "main";
+      }
+    }
+
+  } 
 }
 
 function displayDraggedPiece(){
