@@ -31,7 +31,6 @@ let peaArray = [];
 
 let sun_diameter;
 let sunAmount = 75;
-let alpha = 0;
 
 let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, readyLogo, setLogo, Plantlogo, trophy;
 let peashooter_gif, sunflower_gif, peamoving_gif;
@@ -51,7 +50,7 @@ let grid = [
   ["0","0","0","0","0","0","0","0","0"]
 ];
 
-let lvl1 = [3, "zombie", "end"];
+let lvl1 = ["zombie", 26, "zombie", 20, "zombie", 22, "zombie", 1, "zombie", 23, "cone", 20, "zombie", 17, ["cone", "zombie"], 26, "bucket", 7, "zombie", "end"];
 let levelposition = 0;
 let leveltimer;
 
@@ -319,6 +318,7 @@ function draw() {
   sunDroper();
   zombieReader();
   // zombiespawner();
+  console.log(levelstate);
   backgroundDrawer(gamestate);
   plantfunctions();
   zombiefunctions();
@@ -389,7 +389,6 @@ function zombieReader(){
     }
     else if(levelstate === "stopspawning"){
       if (zombieArray.length === 0){
-        levelstate === "planting";
         levelposition = 0;
         trophy.width = 100;
         trophy.x = width/2 - trophy.width/2;
@@ -398,6 +397,7 @@ function zombieReader(){
         trophy.dy = -3;
         trophy.acell = +0.1;
 
+        levelstate = "planting";
         gamestate = "win";
       }
     }
@@ -566,6 +566,9 @@ function backgroundDrawer(whichbackground){
           scrollOffest = 0;
           gamestate = "readysetplant";
           readySetPlantStatus = "ready";
+          scrollTimer.start();
+          scrollTimer.pause();
+          scrollDirection =  "forward";
         }
       }
     }
@@ -648,17 +651,28 @@ function backgroundDrawer(whichbackground){
     image(peashooterSeed, backgroundOffset,0,tileSize*(1/2), tileSize*(3/4));
     image(sunflowerSeed, backgroundOffset + tileSize * (1/2),0,tileSize*(1/2), tileSize*(3/4));
 
-    image(trophy, trophy.x, trophy.y, trophy.width, trophy.width);
+    image(trophy, trophy.x, trophy.y, trophy.width * 0.8, trophy.width);
 
     if (trophy.state === "notclicked" && trophy.y <= height/2 - trophy.width/2){
-      console.log("yay");
       trophy.y += trophy.dy;
       trophy.dy += trophy.acell;
     }
     if (trophy.state === "clicked"){
       trophy.width += 0.5;
+      trophy.x = width/2 - trophy.width/2;
+      trophy.y = height/2 - trophy.width/2 ;
       if (trophy.width > 180){
         gamestate = "main";
+        plantsArray = [];
+        grid = [
+          ["0","0","0","0","0","0","0","0","0"],
+          ["0","0","0","0","0","0","0","0","0"],
+          ["0","0","0","0","0","0","0","0","0"],
+          ["0","0","0","0","0","0","0","0","0"],
+          ["0","0","0","0","0","0","0","0","0"]
+        ];
+        sunArray = [];
+        sunAmount = 75;
       }
     }
 
