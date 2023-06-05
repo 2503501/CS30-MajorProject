@@ -50,7 +50,8 @@ let grid = [
   ["0","0","0","0","0","0","0","0","0"]
 ];
 
-let lvl1 = ["zombie", 26, "zombie", 20, "zombie", 22, "zombie", 1, "zombie", 23, "cone", 20, "zombie", 17, ["cone", "zombie"], 26, "bucket", 7, "zombie", "end"];
+let lvl1 = ["zombie", "end"];
+// let lvl1 = ["zombie", 26, "zombie", 20, "zombie", 22, "zombie", 1, "zombie", 23, "cone", 20, "zombie", 17, ["cone", "zombie"], 26, "bucket", 7, "zombie", "end"];
 let levelposition = 0;
 let leveltimer;
 
@@ -233,6 +234,25 @@ class Zombie{
         zombieArray.splice(arraylocation,1);
       }
     }
+    
+    if (this.x < tileSize * 1.2){
+      this.state = "attack";
+    }
+
+  }
+
+  checkforlose(position){
+    if (gamestate === "adventure"){
+      if (this.x < tileSize * 1.2){
+        gamestate = "lose";
+        console.log(position);
+        console.log(zombieArray[position]);
+        let tempzombie = zombieArray[position];
+        console.log(tempzombie);
+        zombieArray = [];
+        zombieArray.push(tempzombie);
+      }
+    }
   }
   
   display(){
@@ -391,6 +411,7 @@ function zombieReader(){
       if (zombieArray.length === 0){
         levelposition = 0;
         trophy.width = 100;
+        trophy.height = 80;
         trophy.x = width/2 - trophy.width/2;
         trophy.y = height/2 - trophy.width/2 - 10;
         trophy.state = "notclicked";
@@ -399,13 +420,14 @@ function zombieReader(){
 
         levelstate = "planting";
         gamestate = "win";
+        sunTimer.pause;
       }
     }
   }
 }
 
 function zombiespawner(zombie, health, attackimage){
-  let newzombie = new Zombie(width - tileSize * 0.7, Math.round(random(-0.4, 4.4)), zombie, health, 0.3, attackimage);
+  let newzombie = new Zombie(width - tileSize * 0.7, Math.round(random(-0.4, 4.4)), zombie, health, 2, attackimage);
   zombieArray.push(newzombie);
 }
 
@@ -429,6 +451,7 @@ function plantfunctions(){
 function zombiefunctions(){
   for (let i = zombieArray.length - 1; i >= 0; i--){
     zombieArray[i].update(i);
+    zombieArray[i].checkforlose(i);
   }
 
   //display zombies top to down so that zombies legs will not overlap over a zombies face in another row
@@ -651,7 +674,7 @@ function backgroundDrawer(whichbackground){
     image(peashooterSeed, backgroundOffset,0,tileSize*(1/2), tileSize*(3/4));
     image(sunflowerSeed, backgroundOffset + tileSize * (1/2),0,tileSize*(1/2), tileSize*(3/4));
 
-    image(trophy, trophy.x, trophy.y, trophy.width * 0.8, trophy.width);
+    image(trophy, trophy.x, trophy.y, trophy.width, trophy.height);
 
     if (trophy.state === "notclicked" && trophy.y <= height/2 - trophy.width/2){
       trophy.y += trophy.dy;
@@ -659,6 +682,7 @@ function backgroundDrawer(whichbackground){
     }
     if (trophy.state === "clicked"){
       trophy.width += 0.5;
+      trophy.height += 0.4;
       trophy.x = width/2 - trophy.width/2;
       trophy.y = height/2 - trophy.width/2 ;
       if (trophy.width > 180){
