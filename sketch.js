@@ -9,6 +9,7 @@ let plantingTimer;
 
 let scrollOffest = 0;
 let scrollTimer;
+let lossTimer;
 let preSunTimer;
 let sunTimer;
 let readySetPlantStatus = null;
@@ -24,6 +25,8 @@ let levelstate = "planting";
 let levelSelectButton;
 let buttons = [];
 
+let backgroundalpha = 0;
+
 let plantsArray = [];
 let zombieArray = [];
 let sunArray = [];
@@ -32,7 +35,7 @@ let peaArray = [];
 let sun_diameter;
 let sunAmount = 75;
 
-let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, readyLogo, setLogo, Plantlogo, trophy;
+let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, readyLogo, setLogo, Plantlogo, trophy, deathscreen;
 let peashooter_gif, sunflower_gif, peamoving_gif;
 let zombiewalk_gif, zombiestill_gif, conewalk_gif, conestill_gif, bucketwalk_gif, bucketstill_gif, zombiedead_gif, zombiehead_gif;
 
@@ -73,7 +76,7 @@ class Plant{
     }
   }
   attackZombie(){
-    if (this.plant === "peashooter" && this.fireRate.expired()){
+    if (this.plant === "peashooter" && this.fireRate.expired() && gamestate === "adventure"){
       for (let i = 0; i < zombieArray.length; i++){
         // if (this.y === zombieArray[i].y && backgroundOffset + plantOffset  + tileSize * this.x <= zombieArray[i].x + tileSize * 1.3 && zombieArray[i].x <backgroundOffset+ tileSize*9.1){
         if (this.y === zombieArray[i].y && backgroundOffset + plantOffset * -5 + tileSize * this.x <= zombieArray[i].x && zombieArray[i].x <backgroundOffset+ tileSize*9.1){
@@ -244,11 +247,14 @@ class Zombie{
   checkforlose(position){
     if (gamestate === "adventure"){
       if (this.x < tileSize * 1.2){
+
+        plantsArray = [];
+        sunArray = [];
+        resetGrid();
         gamestate = "lose";
-        console.log(position);
-        console.log(zombieArray[position]);
+        lossTimer.start();
+        //PLAYSOUND
         let tempzombie = zombieArray[position];
-        console.log(tempzombie);
         zombieArray = [];
         zombieArray.push(tempzombie);
       }
@@ -284,6 +290,7 @@ function preload(){
   setLogo = loadImage("images/set.png");
   Plantlogo = loadImage("images/plant.png");
   trophy = loadImage("images/trophy.png");
+  deathscreen = loadImage("images/deathscreen.png");
   
   peashooter_gif = loadImage("images/Peashooter.gif");
   sunflower_gif = loadImage("images/Sunflower.gif");
@@ -322,6 +329,8 @@ function setup() {
   plantingTimer.pause();
   leveltimer = new Timer(10);
   leveltimer.pause();
+  lossTimer = new Timer(8000);
+  lossTimer.pause();
 
   levelSelectButton = createButton("Select Level");
   levelSelectButton.position(width * 0.512, height* 0.15);
@@ -688,19 +697,57 @@ function backgroundDrawer(whichbackground){
       if (trophy.width > 180){
         gamestate = "main";
         plantsArray = [];
-        grid = [
-          ["0","0","0","0","0","0","0","0","0"],
-          ["0","0","0","0","0","0","0","0","0"],
-          ["0","0","0","0","0","0","0","0","0"],
-          ["0","0","0","0","0","0","0","0","0"],
-          ["0","0","0","0","0","0","0","0","0"]
-        ];
+        resetGrid();
         sunArray = [];
         sunAmount = 75;
       }
     }
 
   } 
+  else if (gamestate === "lose"){
+    
+    //background images
+    fill(255);
+    image(lawn, backgroundOffset, tileSize, tileSize*9,tileSize*5);
+    image(housePicture, 0, 0, backgroundOffset, height);
+    image(backgroundFence, backgroundOffset, 0, tileSize*9, tileSize);
+    image(sidewalk,backgroundOffset+ tileSize * 9, 0, width - (backgroundOffset+ tileSize * 9) + 500, height);
+
+
+    //taskbar with seed packets, and sun counter
+    fill(218, 160, 109);
+    stroke(144,69,30);
+    strokeWeight(4);
+    ellipseMode(CENTER);
+    rect(backgroundOffset, 0, tileSize*(1/2)*6, tileSize *(3/4));
+    rect(backgroundOffset- tileSize* (2/3), 0 ,tileSize* (2/3), tileSize*(7/8));
+    ellipse(backgroundOffset- tileSize* (1/3), tileSize/3, sun_diameter);
+    image(sunimage, backgroundOffset- tileSize* (7/12), tileSize/10, sun_diameter, sun_diameter);
+    line(backgroundOffset- tileSize* (2/3), tileSize* (2/3),backgroundOffset, tileSize* (2/3));
+    textAlign(CENTER);
+    textSize(20);
+    text(sunAmount, backgroundOffset- tileSize* (1/3),  tileSize* (13/16));
+    image(peashooterSeed, backgroundOffset,0,tileSize*(1/2), tileSize*(3/4));
+    image(sunflowerSeed, backgroundOffset + tileSize * (1/2),0,tileSize*(1/2), tileSize*(3/4));
+
+    fill(0, 0, 0, backgroundalpha);
+    rect(0,0, width, height);
+    image(deathscreen, width/2 - deathscreen.width/2, height/2 - deathscreen.height/2);
+
+    if (backgroundalpha <= 150){
+      backgroundalpha += backgroundalpha + 0.2;
+    }
+    if (lossTimer.expired()){
+      lossTimer.start();
+      lossTimer.pause();
+      levelstate = "planting";
+      gamestate = "main";
+      zombieArray = [];
+      backgroundalpha = 0;
+    }
+
+
+  }
 }
 
 function displayDraggedPiece(){
@@ -727,4 +774,14 @@ function gif_converter(picname){
   let returner = picname;
   returner = returner + "_gif";
   return returner;
+}
+
+function resetGrid(){
+  grid = [
+    ["0","0","0","0","0","0","0","0","0"],
+    ["0","0","0","0","0","0","0","0","0"],
+    ["0","0","0","0","0","0","0","0","0"],
+    ["0","0","0","0","0","0","0","0","0"],
+    ["0","0","0","0","0","0","0","0","0"]
+  ];
 }
