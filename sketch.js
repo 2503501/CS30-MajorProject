@@ -35,8 +35,8 @@ let peaArray = [];
 let sun_diameter;
 let sunAmount = 75;
 
-let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, readyLogo, setLogo, Plantlogo, trophy, deathscreen;
-let peashooter_gif, sunflower_gif, peamoving_gif;
+let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, walnutSeed, readyLogo, setLogo, Plantlogo, trophy, deathscreen;
+let peashooter_gif, sunflower_gif, peamoving_gif, walnutfull_gif,walnuthalf_gif, walnutlow_gif;
 let zombiewalk_gif, zombiestill_gif, conewalk_gif, conestill_gif, bucketwalk_gif, bucketstill_gif, zombiedead_gif, zombiehead_gif;
 
 let pieceSelected = false;
@@ -53,8 +53,8 @@ let grid = [
   ["0","0","0","0","0","0","0","0","0"]
 ];
 
-let lvl1 = ["zombie", "end"];
-// let lvl1 = ["zombie", 26, "zombie", 20, "zombie", 22, "zombie", 1, "zombie", 23, "cone", 20, "zombie", 17, ["cone", "zombie"], 26, "bucket", 7, "zombie", "end"];
+// let lvl1 = ["zombie", "end"];
+let lvl1 = ["zombie", 26, "zombie", 20, "zombie", 22, "zombie", 1, "zombie", 23, "cone", 20, "zombie", 17, ["cone", "zombie"], 26, "bucket", 7, "zombie", "end"];
 let levelposition = 0;
 let leveltimer;
 
@@ -88,6 +88,15 @@ class Plant{
       this.fireRate.start();
     }
   }
+  updateWalnut(){
+    if (this.plant === "walnutfull" && this.health <= 500){
+      this.plant = "walnuthalf";
+    }
+    else if (this.plant === "walnuthalf" && this.health <= 240){
+      this.plant = "walnutlow";
+    }
+  }
+
   death(arraylocation){
     if (this.health <= 0){
       grid[this.y][this.x] = "0";
@@ -221,7 +230,7 @@ class Zombie{
       for (let i = 0; i < plantsArray.length; i++){
         if (this.y === plantsArray[i].y && this.x < (plantsArray[i].x - 0.1) * tileSize + backgroundOffset + plantOffset && this.x > (plantsArray[i].x -0.75) * tileSize + backgroundOffset + plantOffset){
           this.state = "attack";
-          plantsArray[i].health -= 0.25;
+          plantsArray[i].health -= 0.4;
         }
       }
       if (this.health <= 0){
@@ -252,6 +261,7 @@ class Zombie{
         sunArray = [];
         resetGrid();
         gamestate = "lose";
+        levelposition = 0;
         lossTimer.start();
         //PLAYSOUND
         let tempzombie = zombieArray[position];
@@ -286,6 +296,7 @@ function preload(){
   sunimage = loadImage("images/Sun.gif");
   peashooterSeed = loadImage("images/peashooterseed.png");
   sunflowerSeed = loadImage("images/sunflowerseed.png");
+  walnutSeed = loadImage("images/waltnutseed.PNG");
   readyLogo = loadImage("images/ready.png");
   setLogo = loadImage("images/set.png");
   Plantlogo = loadImage("images/plant.png");
@@ -295,6 +306,9 @@ function preload(){
   peashooter_gif = loadImage("images/Peashooter.gif");
   sunflower_gif = loadImage("images/Sunflower.gif");
   peamoving_gif = loadImage("images/peashot.png");
+  walnutfull_gif = loadImage("images/WallNut.gif");
+  walnuthalf_gif = loadImage("images/Wallnutcracked1.gif");
+  walnutlow_gif = loadImage("images/Wallnutcracked2.gif");
 
   zombiestill_gif = loadImage("images/zombiestill.gif");
   zombiewalk_gif = loadImage("images/zombiewalk.gif");
@@ -329,7 +343,7 @@ function setup() {
   plantingTimer.pause();
   leveltimer = new Timer(10);
   leveltimer.pause();
-  lossTimer = new Timer(8000);
+  lossTimer = new Timer(5500);
   lossTimer.pause();
 
   levelSelectButton = createButton("Select Level");
@@ -347,7 +361,8 @@ function draw() {
   sunDroper();
   zombieReader();
   // zombiespawner();
-  console.log(levelstate);
+  // console.log(levelstate);
+  // console.log(gamestate);
   backgroundDrawer(gamestate);
   plantfunctions();
   zombiefunctions();
@@ -365,7 +380,7 @@ function zombieReader(){
   if (gamestate === "adventure"){
     if (levelstate === "planting"){
       if (plantingTimer.expired()){
-        plantingTimer.start();
+        plantingTimer.reset();
         plantingTimer.pause();
         levelstate = "start";
         leveltimer.start();
@@ -397,7 +412,7 @@ function zombieReader(){
       else{
         if (lvl1[levelposition][0] === "z" || lvl1[levelposition][0] === "c" || lvl1[levelposition][0] === "b"){
           if (lvl1[levelposition][0] === "z"){
-            zombiespawner("zombie", 100, "images/zombieattack.gif");
+            zombiespawner("zombie", 110, "images/zombieattack.gif");
           }
           else if (lvl1[levelposition][0] === "c"){
             zombiespawner("cone", 250, "images/coneattack.gif");
@@ -436,7 +451,7 @@ function zombieReader(){
 }
 
 function zombiespawner(zombie, health, attackimage){
-  let newzombie = new Zombie(width - tileSize * 0.7, Math.round(random(-0.4, 4.4)), zombie, health, 2, attackimage);
+  let newzombie = new Zombie(width - tileSize * 0.7, Math.round(random(-0.4, 4.4)), zombie, health, 0.3, attackimage);
   zombieArray.push(newzombie);
 }
 
@@ -452,6 +467,7 @@ function plantfunctions(){
   for (let i = plantsArray.length - 1; i >=  0; i--){
     plantsArray[i].produceSun();
     plantsArray[i].attackZombie();
+    plantsArray[i].updateWalnut();
     plantsArray[i].display(i);
     plantsArray[i].death(i);
   }
@@ -459,8 +475,8 @@ function plantfunctions(){
 
 function zombiefunctions(){
   for (let i = zombieArray.length - 1; i >= 0; i--){
-    zombieArray[i].update(i);
     zombieArray[i].checkforlose(i);
+    zombieArray[i].update(i);
   }
 
   //display zombies top to down so that zombies legs will not overlap over a zombies face in another row
@@ -494,6 +510,10 @@ function mousePressed(){
         draggedPiece = "sunflower";
         draggedImage = loadImage("images/Sunflower.gif");
       }
+      else if (x ===2 && sunAmount >= 50){
+        draggedPiece = "walnutfull";
+        draggedImage = loadImage("images/WallNut.gif");
+      }
     }
   }
   if (gamestate === "win"){
@@ -526,6 +546,12 @@ function mouseReleased() {
         sunAmount -= 50;
         let newplant = new Plant(y, x, draggedPiece, 100); 
         newplant.sunflowerTimer.start();
+        plantsArray.push(newplant);
+        grid[y][x] = draggedPiece;
+      }
+      else if (draggedPiece === "walnutfull"){
+        sunAmount -= 50;
+        let newplant = new Plant(y, x, draggedPiece, 850); 
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
       }
@@ -656,6 +682,7 @@ function backgroundDrawer(whichbackground){
     text(sunAmount, backgroundOffset- tileSize* (1/3),  tileSize* (13/16));
     image(peashooterSeed, backgroundOffset,0,tileSize*(1/2), tileSize*(3/4));
     image(sunflowerSeed, backgroundOffset + tileSize * (1/2),0,tileSize*(1/2), tileSize*(3/4));
+    image(walnutSeed, backgroundOffset + tileSize,0,tileSize*(1/2), tileSize*(3/4));
   }
   else if (gamestate === "win"){
 
@@ -738,7 +765,7 @@ function backgroundDrawer(whichbackground){
       backgroundalpha += backgroundalpha + 0.2;
     }
     if (lossTimer.expired()){
-      lossTimer.start();
+      lossTimer.reset();
       lossTimer.pause();
       levelstate = "planting";
       gamestate = "main";
