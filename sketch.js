@@ -35,7 +35,7 @@ let peaArray = [];
 let sun_diameter;
 let sunAmount = 75;
 
-let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, walnutSeed, potatoSeed, readyLogo, setLogo, Plantlogo, trophy, deathscreen;
+let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, walnutSeed, potatoSeed, readyLogo, setLogo, Plantlogo, trophy, deathscreen, spudow, shovel, shovelseed;
 let peashooter_gif, sunflower_gif, peamoving_gif, walnutfull_gif,walnuthalf_gif, walnutlow_gif, potatounder_gif, potatoup_gif, potatoexplode_gif;
 let zombiewalk_gif, zombiestill_gif, conewalk_gif, conestill_gif, bucketwalk_gif, bucketstill_gif, zombiedead_gif, zombiehead_gif;
 
@@ -94,13 +94,13 @@ class Plant{
   updatePotato(){
     if (this.plant === "potatounder" && this.armtime.expired()){
       this.armtime.pause();
-      this.plant = "potatoup"
+      this.plant = "potatoup";
     }
     if (this.plant === "potatoup"){
       for (let i = zombieArray.length - 1; i >= 0; i--){
         if (this.y === zombieArray[i].y && zombieArray[i].x <= (this.x - 0.14) * tileSize + backgroundOffset + plantOffset && zombieArray[i].x >= (this.x -0.96) * tileSize + backgroundOffset + plantOffset){
           zombieArray[i].health = 0;
-          this.plant = "potatoexplode"
+          this.plant = "potatoexplode";
           this.explodetimer.start();
         }
       }
@@ -130,6 +130,7 @@ class Plant{
   display(){
     if (this.plant === "potatoexplode"){
       image(eval(gif_converter(this.plant)), backgroundOffset + plantOffset *0.25  + tileSize * this.x, tileSize -plantOffset *0.5  + tileSize * this.y, tileSize - plantOffset * 0.5  , tileSize + plantOffset * 0.5 );
+      image(spudow, backgroundOffset - tileSize *0.12 + tileSize * this.x, tileSize -plantOffset *0.8  + tileSize * this.y, tileSize + plantOffset * 0.3, tileSize * 0.4 );
     }
     else{
       image(eval(gif_converter(this.plant)), backgroundOffset + plantOffset  + tileSize * this.x, tileSize +plantOffset  + tileSize * this.y, tileSize - plantOffset * 2  , tileSize - plantOffset * 2 );
@@ -325,12 +326,14 @@ function preload(){
   peashooterSeed = loadImage("images/peashooterseed.png");
   sunflowerSeed = loadImage("images/sunflowerseed.png");
   walnutSeed = loadImage("images/waltnutseed.PNG");
-  potatoSeed = loadImage("images/potatoseed.PNG")
+  potatoSeed = loadImage("images/potatoseed.PNG");
   readyLogo = loadImage("images/ready.png");
   setLogo = loadImage("images/set.png");
   Plantlogo = loadImage("images/plant.png");
   trophy = loadImage("images/trophy.png");
   deathscreen = loadImage("images/deathscreen.png");
+  spudow = loadImage("images/spudow.png");
+  shovelseed = loadImage("images/shovelseed.png");
   
   peashooter_gif = loadImage("images/Peashooter.gif");
   sunflower_gif = loadImage("images/Sunflower.gif");
@@ -401,6 +404,7 @@ function draw() {
   peafunctions();
   sunDisplay();
   displayDraggedPiece();
+  displaytrophy();
 }
 
 // things that need to be reset on a lose or a win
@@ -551,6 +555,10 @@ function mousePressed(){
         draggedPiece = "potatounder";
         draggedImage = loadImage("images/potato.gif");
       }
+      else if (x ===5 || x ===6){
+        draggedPiece = "shovel";
+        draggedImage = loadImage("images/shovel.PNG");
+      }
     }
   }
   if (gamestate === "win"){
@@ -599,6 +607,18 @@ function mouseReleased() {
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
       }
+      draggedPiece = null;
+      draggedImage = null;
+    }
+    if (x >= 0 && x <=8 && y >= 0 && y <= 4 && draggedPiece === "shovel"){
+      console.log("true1");
+      for (let i = 0; i < plantsArray; i++){
+        if (plantsArray[i].x === x && plantsArray[i].y === y){
+          console.log("true2");
+          plantsArray.splice(i,1);
+        }
+      }
+      grid[y][x] = "0";
     }
     draggedPiece = null;
     draggedImage = null;
@@ -715,8 +735,9 @@ function backgroundDrawer(whichbackground){
     stroke(144,69,30);
     strokeWeight(4);
     ellipseMode(CENTER);
-    rect(backgroundOffset, 0, tileSize*(1/2)*6, tileSize *(3/4));
+    rect(backgroundOffset, 0, tileSize*(1/2)*5, tileSize *(3/4));
     rect(backgroundOffset- tileSize* (2/3), 0 ,tileSize* (2/3), tileSize*(7/8));
+    image(shovelseed,backgroundOffset + tileSize*(1/2)*5, 0, tileSize* (2/3), tileSize* (2/3));
     ellipse(backgroundOffset- tileSize* (1/3), tileSize/3, sun_diameter);
     image(sunimage, backgroundOffset- tileSize* (7/12), tileSize/10, sun_diameter, sun_diameter);
     line(backgroundOffset- tileSize* (2/3), tileSize* (2/3),backgroundOffset, tileSize* (2/3));
@@ -743,8 +764,9 @@ function backgroundDrawer(whichbackground){
     stroke(144,69,30);
     strokeWeight(4);
     ellipseMode(CENTER);
-    rect(backgroundOffset, 0, tileSize*(1/2)*6, tileSize *(3/4));
+    rect(backgroundOffset, 0, tileSize*(1/2)*5, tileSize *(3/4));
     rect(backgroundOffset- tileSize* (2/3), 0 ,tileSize* (2/3), tileSize*(7/8));
+    image(shovelseed,backgroundOffset + tileSize*(1/2)*5, 0, tileSize* (2/3), tileSize* (2/3));
     ellipse(backgroundOffset- tileSize* (1/3), tileSize/3, sun_diameter);
     image(sunimage, backgroundOffset- tileSize* (7/12), tileSize/10, sun_diameter, sun_diameter);
     line(backgroundOffset- tileSize* (2/3), tileSize* (2/3),backgroundOffset, tileSize* (2/3));
@@ -757,25 +779,27 @@ function backgroundDrawer(whichbackground){
     image(walnutSeed, backgroundOffset + tileSize,0,tileSize*(1/2), tileSize*(3/4));
     image(potatoSeed, backgroundOffset + tileSize * (3/2),0,tileSize*(1/2), tileSize*(3/4));
 
-    image(trophy, trophy.x, trophy.y, trophy.width, trophy.height);
+    displaytrophy();
 
-    if (trophy.state === "notclicked" && trophy.y <= height/2 - trophy.width/2){
-      trophy.y += trophy.dy;
-      trophy.dy += trophy.acell;
-    }
-    if (trophy.state === "clicked"){
-      trophy.width += 0.5;
-      trophy.height += 0.4;
-      trophy.x = width/2 - trophy.width/2;
-      trophy.y = height/2 - trophy.width/2 ;
-      if (trophy.width > 180){
-        gamestate = "main";
-        plantsArray = [];
-        resetGrid();
-        sunArray = [];
-        sunAmount = 75;
-      }
-    }
+    // image(trophy, trophy.x, trophy.y, trophy.width, trophy.height);
+
+    // if (trophy.state === "notclicked" && trophy.y <= height/2 - trophy.width/2){
+    //   trophy.y += trophy.dy;
+    //   trophy.dy += trophy.acell;
+    // }
+    // if (trophy.state === "clicked"){
+    //   trophy.width += 0.5;
+    //   trophy.height += 0.4;
+    //   trophy.x = width/2 - trophy.width/2;
+    //   trophy.y = height/2 - trophy.width/2 ;
+    //   if (trophy.width > 180){
+    //     gamestate = "main";
+    //     plantsArray = [];
+    //     resetGrid();
+    //     sunArray = [];
+    //     sunAmount = 75;
+    //   }
+    // }
 
   } 
   else if (gamestate === "lose"){
@@ -793,8 +817,9 @@ function backgroundDrawer(whichbackground){
     stroke(144,69,30);
     strokeWeight(4);
     ellipseMode(CENTER);
-    rect(backgroundOffset, 0, tileSize*(1/2)*6, tileSize *(3/4));
+    rect(backgroundOffset, 0, tileSize*(1/2)*5, tileSize *(3/4));
     rect(backgroundOffset- tileSize* (2/3), 0 ,tileSize* (2/3), tileSize*(7/8));
+    image(shovelseed,backgroundOffset + tileSize*(1/2)*5, 0, tileSize* (2/3), tileSize* (2/3));
     ellipse(backgroundOffset- tileSize* (1/3), tileSize/3, sun_diameter);
     image(sunimage, backgroundOffset- tileSize* (7/12), tileSize/10, sun_diameter, sun_diameter);
     line(backgroundOffset- tileSize* (2/3), tileSize* (2/3),backgroundOffset, tileSize* (2/3));
@@ -845,6 +870,29 @@ function displayreadysetPlant(status){
   }
 }
 
+function displaytrophy(){
+  if (gamestate === "win"){
+    image(trophy, trophy.x, trophy.y, trophy.width, trophy.height);
+
+    if (trophy.state === "notclicked" && trophy.y <= height/2 - trophy.width/2){
+      trophy.y += trophy.dy;
+      trophy.dy += trophy.acell;
+    }
+    if (trophy.state === "clicked"){
+      trophy.width += 0.5;
+      trophy.height += 0.4;
+      trophy.x = width/2 - trophy.width/2;
+      trophy.y = height/2 - trophy.width/2 ;
+      if (trophy.width > 180){
+        gamestate = "main";
+        plantsArray = [];
+        resetGrid();
+        sunArray = [];
+        sunAmount = 75;
+      }
+    }
+  }
+}
 
 function gif_converter(picname){
   let returner = picname;
