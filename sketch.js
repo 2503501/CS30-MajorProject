@@ -35,8 +35,8 @@ let peaArray = [];
 let sun_diameter;
 let sunAmount = 75;
 
-let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, walnutSeed, readyLogo, setLogo, Plantlogo, trophy, deathscreen;
-let peashooter_gif, sunflower_gif, peamoving_gif, walnutfull_gif,walnuthalf_gif, walnutlow_gif;
+let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, walnutSeed, potatoSeed, readyLogo, setLogo, Plantlogo, trophy, deathscreen;
+let peashooter_gif, sunflower_gif, peamoving_gif, walnutfull_gif,walnuthalf_gif, walnutlow_gif, potatounder_gif, potatoup_gif, potatoexplode_gif;
 let zombiewalk_gif, zombiestill_gif, conewalk_gif, conestill_gif, bucketwalk_gif, bucketstill_gif, zombiedead_gif, zombiehead_gif;
 
 let pieceSelected = false;
@@ -66,6 +66,9 @@ class Plant{
     this.health = health;
     this.sunflowerTimer = new Timer(6000);
     this.fireRate = new Timer(1500);
+    this.armtime = new Timer(14000);
+    this.explodetimer = new Timer(2000);
+    this.explodetimer.pause();
   }
   produceSun(){
     if (this.plant === "sunflower" && this.sunflowerTimer.expired()){
@@ -88,6 +91,26 @@ class Plant{
       this.fireRate.start();
     }
   }
+  updatePotato(){
+    if (this.plant === "potatounder" && this.armtime.expired()){
+      this.armtime.pause();
+      this.plant = "potatoup"
+    }
+    if (this.plant === "potatoup"){
+      for (let i = zombieArray.length - 1; i >= 0; i--){
+        if (this.y === zombieArray[i].y && zombieArray[i].x <= (this.x - 0.14) * tileSize + backgroundOffset + plantOffset && zombieArray[i].x >= (this.x -0.96) * tileSize + backgroundOffset + plantOffset){
+          zombieArray[i].health = 0;
+          this.plant = "potatoexplode"
+          this.explodetimer.start();
+        }
+      }
+    }
+    if (this.plant === "potatoexplode" && this.explodetimer.expired()){
+      this.health = 0;
+    }
+  }
+
+
   updateWalnut(){
     if (this.plant === "walnutfull" && this.health <= 500){
       this.plant = "walnuthalf";
@@ -105,7 +128,12 @@ class Plant{
   }
 
   display(){
-    image(eval(gif_converter(this.plant)), backgroundOffset + plantOffset  + tileSize * this.x, tileSize +plantOffset  + tileSize * this.y, tileSize - plantOffset * 2  , tileSize - plantOffset * 2 );
+    if (this.plant === "potatoexplode"){
+      image(eval(gif_converter(this.plant)), backgroundOffset + plantOffset *0.25  + tileSize * this.x, tileSize -plantOffset *0.5  + tileSize * this.y, tileSize - plantOffset * 0.5  , tileSize + plantOffset * 0.5 );
+    }
+    else{
+      image(eval(gif_converter(this.plant)), backgroundOffset + plantOffset  + tileSize * this.x, tileSize +plantOffset  + tileSize * this.y, tileSize - plantOffset * 2  , tileSize - plantOffset * 2 );
+    }
   }
 }
 
@@ -297,6 +325,7 @@ function preload(){
   peashooterSeed = loadImage("images/peashooterseed.png");
   sunflowerSeed = loadImage("images/sunflowerseed.png");
   walnutSeed = loadImage("images/waltnutseed.PNG");
+  potatoSeed = loadImage("images/potatoseed.PNG")
   readyLogo = loadImage("images/ready.png");
   setLogo = loadImage("images/set.png");
   Plantlogo = loadImage("images/plant.png");
@@ -309,6 +338,9 @@ function preload(){
   walnutfull_gif = loadImage("images/WallNut.gif");
   walnuthalf_gif = loadImage("images/Wallnutcracked1.gif");
   walnutlow_gif = loadImage("images/Wallnutcracked2.gif");
+  potatoup_gif = loadImage("images/potato.gif");
+  potatoexplode_gif = loadImage("images/potatoexplode.png");
+  potatounder_gif = loadImage("images/potatounder.png");
 
   zombiestill_gif = loadImage("images/zombiestill.gif");
   zombiewalk_gif = loadImage("images/zombiewalk.gif");
@@ -468,6 +500,7 @@ function plantfunctions(){
     plantsArray[i].produceSun();
     plantsArray[i].attackZombie();
     plantsArray[i].updateWalnut();
+    plantsArray[i].updatePotato();
     plantsArray[i].display(i);
     plantsArray[i].death(i);
   }
@@ -514,6 +547,10 @@ function mousePressed(){
         draggedPiece = "walnutfull";
         draggedImage = loadImage("images/WallNut.gif");
       }
+      else if (x ===3 && sunAmount >= 25){
+        draggedPiece = "potatounder";
+        draggedImage = loadImage("images/potato.gif");
+      }
     }
   }
   if (gamestate === "win"){
@@ -552,6 +589,13 @@ function mouseReleased() {
       else if (draggedPiece === "walnutfull"){
         sunAmount -= 50;
         let newplant = new Plant(y, x, draggedPiece, 850); 
+        plantsArray.push(newplant);
+        grid[y][x] = draggedPiece;
+      }
+      else if (draggedPiece === "potatounder"){
+        sunAmount -= 25;
+        let newplant = new Plant(y, x, draggedPiece, 100); 
+        newplant.armtime.start();
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
       }
@@ -683,6 +727,7 @@ function backgroundDrawer(whichbackground){
     image(peashooterSeed, backgroundOffset,0,tileSize*(1/2), tileSize*(3/4));
     image(sunflowerSeed, backgroundOffset + tileSize * (1/2),0,tileSize*(1/2), tileSize*(3/4));
     image(walnutSeed, backgroundOffset + tileSize,0,tileSize*(1/2), tileSize*(3/4));
+    image(potatoSeed, backgroundOffset + tileSize * (3/2),0,tileSize*(1/2), tileSize*(3/4));
   }
   else if (gamestate === "win"){
 
@@ -709,6 +754,8 @@ function backgroundDrawer(whichbackground){
     text(sunAmount, backgroundOffset- tileSize* (1/3),  tileSize* (13/16));
     image(peashooterSeed, backgroundOffset,0,tileSize*(1/2), tileSize*(3/4));
     image(sunflowerSeed, backgroundOffset + tileSize * (1/2),0,tileSize*(1/2), tileSize*(3/4));
+    image(walnutSeed, backgroundOffset + tileSize,0,tileSize*(1/2), tileSize*(3/4));
+    image(potatoSeed, backgroundOffset + tileSize * (3/2),0,tileSize*(1/2), tileSize*(3/4));
 
     image(trophy, trophy.x, trophy.y, trophy.width, trophy.height);
 
@@ -756,6 +803,8 @@ function backgroundDrawer(whichbackground){
     text(sunAmount, backgroundOffset- tileSize* (1/3),  tileSize* (13/16));
     image(peashooterSeed, backgroundOffset,0,tileSize*(1/2), tileSize*(3/4));
     image(sunflowerSeed, backgroundOffset + tileSize * (1/2),0,tileSize*(1/2), tileSize*(3/4));
+    image(walnutSeed, backgroundOffset + tileSize,0,tileSize*(1/2), tileSize*(3/4));
+    image(potatoSeed, backgroundOffset + tileSize * (3/2),0,tileSize*(1/2), tileSize*(3/4));
 
     fill(0, 0, 0, backgroundalpha);
     rect(0,0, width, height);
