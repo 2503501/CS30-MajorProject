@@ -35,8 +35,8 @@ let peaArray = [];
 let sun_diameter;
 let sunAmount = 75;
 
-let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, walnutSeed, potatoSeed, readyLogo, setLogo, Plantlogo, trophy, deathscreen, spudow, shovel, shovelseed;
-let peashooter_gif, sunflower_gif, peamoving_gif, walnutfull_gif,walnuthalf_gif, walnutlow_gif, potatounder_gif, potatoup_gif, potatoexplode_gif;
+let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, repeaterSeed, walnutSeed, potatoSeed, readyLogo, setLogo, Plantlogo, trophy, deathscreen, spudow, shovel, shovelseed;
+let peashooter_gif, sunflower_gif, peamoving_gif, walnutfull_gif,walnuthalf_gif, walnutlow_gif, potatounder_gif, potatoup_gif, potatoexplode_gif, repeater_gif;
 let zombiewalk_gif, zombiestill_gif, conewalk_gif, conestill_gif, bucketwalk_gif, bucketstill_gif, zombiedead_gif, zombiehead_gif;
 
 let pieceSelected = false;
@@ -64,8 +64,9 @@ class Plant{
     this.x = x; 
     this.plant = whatplant;
     this.health = health;
-    this.sunflowerTimer = new Timer(6000);
+    this.sunflowerTimer = new Timer(7000);
     this.fireRate = new Timer(1500);
+    this.fireRate2 = new Timer(1650);
     this.armtime = new Timer(14000);
     this.explodetimer = new Timer(2000);
     this.explodetimer.pause();
@@ -75,20 +76,24 @@ class Plant{
       let newSun = new Sun(random(backgroundOffset + tileSize * this.x, backgroundOffset + tileSize * (this.x + 1) - sun_diameter) , tileSize * (this.y + 1), tileSize * (this.y + 1.65), "plant");
       sunArray.push(newSun);
       this.sunflowerTimer = new Timer(24000);
-      this.sunflowerTimer.start();
     }
   }
   attackZombie(){
-    if (this.plant === "peashooter" && this.fireRate.expired() && gamestate === "adventure"){
+    if ((this.plant === "peashooter" || this.plant === "repeater") && (this.fireRate.expired() || this.fireRate2.expired())&& gamestate === "adventure"){
       for (let i = 0; i < zombieArray.length; i++){
-        // if (this.y === zombieArray[i].y && backgroundOffset + plantOffset  + tileSize * this.x <= zombieArray[i].x + tileSize * 1.3 && zombieArray[i].x <backgroundOffset+ tileSize*9.1){
         if (this.y === zombieArray[i].y && backgroundOffset + plantOffset * -5 + tileSize * this.x <= zombieArray[i].x && zombieArray[i].x <backgroundOffset+ tileSize*9.1){
           let newpea = new Pea(backgroundOffset + plantOffset *3 + tileSize * this.x , this.y );
           peaArray.push(newpea);
           break;
         }
       }
-      this.fireRate.start();
+      if (this.fireRate.expired()){
+        this.fireRate.start();
+      }
+      if (this.fireRate2.expired()){
+        this.fireRate2 = new Timer(1500);
+        this.fireRate2.start();
+      }
     }
   }
   updatePotato(){
@@ -326,6 +331,7 @@ function preload(){
   peashooterSeed = loadImage("images/peashooterseed.png");
   sunflowerSeed = loadImage("images/sunflowerseed.png");
   walnutSeed = loadImage("images/waltnutseed.PNG");
+  repeaterSeed = loadImage("images/repeaterseed.PNG");
   potatoSeed = loadImage("images/potatoseed.PNG");
   readyLogo = loadImage("images/ready.png");
   setLogo = loadImage("images/set.png");
@@ -344,6 +350,7 @@ function preload(){
   potatoup_gif = loadImage("images/potato.gif");
   potatoexplode_gif = loadImage("images/potatoexplode.png");
   potatounder_gif = loadImage("images/potatounder.png");
+  repeater_gif = loadImage("images/Repeater.gif");
 
   zombiestill_gif = loadImage("images/zombiestill.gif");
   zombiewalk_gif = loadImage("images/zombiewalk.gif");
@@ -353,7 +360,6 @@ function preload(){
   bucketwalk_gif = loadImage("images/bucketwalk.gif");
   zombiedead_gif = loadImage("images/zombiedie.gif");
   zombiehead_gif = loadImage("images/zombiehead.gif");
-
 }
 
 function setup() {
@@ -487,7 +493,7 @@ function zombieReader(){
 }
 
 function zombiespawner(zombie, health, attackimage){
-  let newzombie = new Zombie(width - tileSize * 0.7, Math.round(random(-0.4, 4.4)), zombie, health, 0.3, attackimage);
+  let newzombie = new Zombie(width - tileSize * 0.7, Math.round(random(-0.4, 4.4)), zombie, health, 0.35, attackimage);
   zombieArray.push(newzombie);
 }
 
@@ -555,6 +561,10 @@ function mousePressed(){
         draggedPiece = "potatounder";
         draggedImage = loadImage("images/potato.gif");
       }
+      else if (x ===4 && sunAmount >= 200){
+        draggedPiece = "repeater";
+        draggedImage = loadImage("images/Repeater.gif");
+      }
       else if (x ===5 || x ===6){
         draggedPiece = "shovel";
         draggedImage = loadImage("images/shovel.PNG");
@@ -579,18 +589,17 @@ function mouseReleased() {
   let x = Math.floor(mouseX/tileSize - backgroundOffset/tileSize);
   let y = Math.floor(mouseY/tileSize - tileSize /tileSize);
   if(draggedImage) {
-    if (x >= 0 && x <=8 && y >= 0 && y <= 4 && grid[y][x] === "0"){
+    if (x >= 0 && x <=8 && y >= 0 && y <= 4 && grid[y][x] === "0" && draggedPiece !== "shovel"){
       if (draggedPiece === "peashooter"){
         sunAmount -= 100;
         let newplant = new Plant(y, x, draggedPiece, 100); 
-        newplant.fireRate.start();
+        newplant.fireRate2.pause();
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
       }
       else if (draggedPiece === "sunflower"){
         sunAmount -= 50;
         let newplant = new Plant(y, x, draggedPiece, 100); 
-        newplant.sunflowerTimer.start();
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
       }
@@ -603,18 +612,21 @@ function mouseReleased() {
       else if (draggedPiece === "potatounder"){
         sunAmount -= 25;
         let newplant = new Plant(y, x, draggedPiece, 100); 
-        newplant.armtime.start();
+        plantsArray.push(newplant);
+        grid[y][x] = draggedPiece;
+      }
+      else if (draggedPiece === "repeater"){
+        sunAmount -= 200;
+        let newplant = new Plant(y, x, draggedPiece, 100);
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
       }
       draggedPiece = null;
       draggedImage = null;
     }
-    if (x >= 0 && x <=8 && y >= 0 && y <= 4 && draggedPiece === "shovel"){
-      console.log("true1");
-      for (let i = 0; i < plantsArray; i++){
+    else if (x >= 0 && x <=8 && y >= 0 && y <= 4 && draggedPiece === "shovel"){
+      for (let i = 0; i < plantsArray.length; i++){
         if (plantsArray[i].x === x && plantsArray[i].y === y){
-          console.log("true2");
           plantsArray.splice(i,1);
         }
       }
@@ -749,6 +761,7 @@ function backgroundDrawer(whichbackground){
     image(sunflowerSeed, backgroundOffset + tileSize * (1/2),0,tileSize*(1/2), tileSize*(3/4));
     image(walnutSeed, backgroundOffset + tileSize,0,tileSize*(1/2), tileSize*(3/4));
     image(potatoSeed, backgroundOffset + tileSize * (3/2),0,tileSize*(1/2), tileSize*(3/4));
+    image(repeaterSeed, backgroundOffset + tileSize * 2,0,tileSize*(1/2), tileSize*(3/4));
   }
   else if (gamestate === "win"){
 
@@ -778,28 +791,7 @@ function backgroundDrawer(whichbackground){
     image(sunflowerSeed, backgroundOffset + tileSize * (1/2),0,tileSize*(1/2), tileSize*(3/4));
     image(walnutSeed, backgroundOffset + tileSize,0,tileSize*(1/2), tileSize*(3/4));
     image(potatoSeed, backgroundOffset + tileSize * (3/2),0,tileSize*(1/2), tileSize*(3/4));
-
-    displaytrophy();
-
-    // image(trophy, trophy.x, trophy.y, trophy.width, trophy.height);
-
-    // if (trophy.state === "notclicked" && trophy.y <= height/2 - trophy.width/2){
-    //   trophy.y += trophy.dy;
-    //   trophy.dy += trophy.acell;
-    // }
-    // if (trophy.state === "clicked"){
-    //   trophy.width += 0.5;
-    //   trophy.height += 0.4;
-    //   trophy.x = width/2 - trophy.width/2;
-    //   trophy.y = height/2 - trophy.width/2 ;
-    //   if (trophy.width > 180){
-    //     gamestate = "main";
-    //     plantsArray = [];
-    //     resetGrid();
-    //     sunArray = [];
-    //     sunAmount = 75;
-    //   }
-    // }
+    image(repeaterSeed, backgroundOffset + tileSize * 2,0,tileSize*(1/2), tileSize*(3/4));
 
   } 
   else if (gamestate === "lose"){
@@ -830,6 +822,7 @@ function backgroundDrawer(whichbackground){
     image(sunflowerSeed, backgroundOffset + tileSize * (1/2),0,tileSize*(1/2), tileSize*(3/4));
     image(walnutSeed, backgroundOffset + tileSize,0,tileSize*(1/2), tileSize*(3/4));
     image(potatoSeed, backgroundOffset + tileSize * (3/2),0,tileSize*(1/2), tileSize*(3/4));
+    image(repeaterSeed, backgroundOffset + tileSize * 2,0,tileSize*(1/2), tileSize*(3/4));
 
     fill(0, 0, 0, backgroundalpha);
     rect(0,0, width, height);
