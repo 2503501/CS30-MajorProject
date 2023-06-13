@@ -31,6 +31,7 @@ let plantsArray = [];
 let zombieArray = [];
 let sunArray = [];
 let peaArray = [];
+let seedArray = [];
 
 let sun_diameter;
 let sunAmount = 75;
@@ -54,7 +55,7 @@ let grid = [
 ];
 
 // let lvl1 = ["zombie", "end"];
-let lvl1 = ["zombie", 26, "zombie", 20, "zombie", 22, "zombie", 1, "zombie", 23, "cone", 20, "zombie", 17, ["cone", "zombie"], 26, "bucket", 7, "zombie", "end"];
+let lvl1 = ["zombie", 26, "zombie", 23, "zombie", 22, "zombie", 3, "zombie", 23, "cone", 20, "zombie", 17, ["cone", "zombie"], 26, "bucket", 8, "zombie", 18, ["cone", "zombie"], 9, "zombie", 9, "bucket", 14, "cone", 6, "cone", 2, "zombie", "end"];
 let levelposition = 0;
 let leveltimer;
 
@@ -65,8 +66,8 @@ class Plant{
     this.plant = whatplant;
     this.health = health;
     this.sunflowerTimer = new Timer(7000);
-    this.fireRate = new Timer(1500);
-    this.fireRate2 = new Timer(1650);
+    this.fireRate = new Timer(1800);
+    this.fireRate2 = new Timer(1950);
     this.armtime = new Timer(14000);
     this.explodetimer = new Timer(2000);
     this.explodetimer.pause();
@@ -91,7 +92,7 @@ class Plant{
         this.fireRate.start();
       }
       if (this.fireRate2.expired()){
-        this.fireRate2 = new Timer(1500);
+        this.fireRate2 = new Timer(1800);
         this.fireRate2.start();
       }
     }
@@ -242,6 +243,7 @@ class Zombie{
     this.zombiedeath = loadImage("images/zombiedie.gif");
     this.zombiehead = loadImage("images/zombiehead.gif");
     this.zombieeating = loadImage(eatingimage);
+    this.maxhealth = health;
   }
   update(arraylocation){
     if (this.state === "walk"){
@@ -308,9 +310,13 @@ class Zombie{
   display(){
     if (this.state === "walk"){
       image(eval(gif_converter(this.zombie + this.state)), this.x, this.y * tileSize + tileSize * 5/8, tileSize * 1.45, tileSize+ tileSize * 3/8);
+      fill("red");
+      rect(this.x + tileSize *0.625, this.y * tileSize + tileSize * 5.5/8, tileSize * 0.5 * (this.health/this.maxhealth), tileSize*0.1);
     }
     else if (this.state === "attack"){
       image(this.zombieeating, this.x, this.y * tileSize + tileSize * 5/8, tileSize * 1.45, tileSize+ tileSize * 3/8);
+      fill("red");
+      rect(this.x + tileSize *0.625, this.y * tileSize + tileSize * 5.5/8, tileSize * 0.5 * (this.health/this.maxhealth), tileSize*0.1);
     }
     else if (this.state === "dead"){
       image(this.zombiedeath, this.x, this.y * tileSize + tileSize * 5/8, tileSize * 1.45, tileSize+ tileSize * 3/8);
@@ -387,6 +393,22 @@ function setup() {
   lossTimer = new Timer(5500);
   lossTimer.pause();
 
+  seedArray.push(potatoSeed);
+  seedArray.push(peashooterSeed);
+  seedArray.push(sunflowerSeed);
+  seedArray.push(walnutSeed);
+  seedArray.push(repeaterSeed);
+  potatoSeed.x = 3;
+  potatoSeed.countdown = 0;
+  peashooterSeed.x = 0;
+  peashooterSeed.countdown = 0;
+  sunflowerSeed.x = 1;
+  sunflowerSeed.countdown = 0;
+  walnutSeed.x = 2; 
+  walnutSeed.countdown = 0;
+  repeaterSeed.x = 4;
+  repeaterSeed.countdown = 0;
+
   levelSelectButton = createButton("Select Level");
   levelSelectButton.position(width * 0.512, height* 0.15);
   levelSelectButton.size(width * 0.4, height * 0.13);
@@ -401,14 +423,12 @@ function draw() {
   background(200);
   sunDroper();
   zombieReader();
-  // zombiespawner();
-  // console.log(levelstate);
-  // console.log(gamestate);
   backgroundDrawer(gamestate);
   plantfunctions();
   zombiefunctions();
   peafunctions();
   sunDisplay();
+  updateCountdown();
   displayDraggedPiece();
   displaytrophy();
 }
@@ -545,23 +565,23 @@ function mousePressed(){
     if (seedclicked){
 
       //peashooter
-      if (x ===0 && sunAmount >= 100){
+      if (x ===0 && sunAmount >= 100 && peashooterSeed.countdown === 0){
         draggedPiece = "peashooter";
         draggedImage = loadImage("images/Peashooter.gif");
       }
-      else if (x ===1 && sunAmount >= 50){
+      else if (x ===1 && sunAmount >= 50 && sunflowerSeed.countdown === 0){
         draggedPiece = "sunflower";
         draggedImage = loadImage("images/Sunflower.gif");
       }
-      else if (x ===2 && sunAmount >= 50){
+      else if (x ===2 && sunAmount >= 50 && walnutSeed.countdown === 0){
         draggedPiece = "walnutfull";
         draggedImage = loadImage("images/WallNut.gif");
       }
-      else if (x ===3 && sunAmount >= 25){
+      else if (x ===3 && sunAmount >= 25 && potatoSeed.countdown === 0){
         draggedPiece = "potatounder";
         draggedImage = loadImage("images/potato.gif");
       }
-      else if (x ===4 && sunAmount >= 200){
+      else if (x ===4 && sunAmount >= 200 && repeaterSeed.countdown === 0){
         draggedPiece = "repeater";
         draggedImage = loadImage("images/Repeater.gif");
       }
@@ -592,6 +612,7 @@ function mouseReleased() {
     if (x >= 0 && x <=8 && y >= 0 && y <= 4 && grid[y][x] === "0" && draggedPiece !== "shovel"){
       if (draggedPiece === "peashooter"){
         sunAmount -= 100;
+        peashooterSeed.countdown = 5;
         let newplant = new Plant(y, x, draggedPiece, 100); 
         newplant.fireRate2.pause();
         plantsArray.push(newplant);
@@ -599,24 +620,28 @@ function mouseReleased() {
       }
       else if (draggedPiece === "sunflower"){
         sunAmount -= 50;
+        sunflowerSeed.countdown = 4;
         let newplant = new Plant(y, x, draggedPiece, 100); 
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
       }
       else if (draggedPiece === "walnutfull"){
         sunAmount -= 50;
+        walnutSeed.countdown = 25;
         let newplant = new Plant(y, x, draggedPiece, 850); 
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
       }
       else if (draggedPiece === "potatounder"){
         sunAmount -= 25;
+        potatoSeed.countdown = 25;
         let newplant = new Plant(y, x, draggedPiece, 100); 
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
       }
       else if (draggedPiece === "repeater"){
         sunAmount -= 200;
+        repeaterSeed.countdown = 6;
         let newplant = new Plant(y, x, draggedPiece, 100);
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
@@ -636,6 +661,20 @@ function mouseReleased() {
     draggedImage = null;
   }
 
+}
+
+function updateCountdown(){
+  for (let i = 0; i <seedArray.length; i++){
+    if (seedArray[i].countdown > 0){
+      fill(255,255,255, 0);
+      text(seedArray[i].countdown, backgroundOffset + tileSize * (seedArray[i].x/2),tileSize*(3/8),tileSize*(1/2));
+      fill(0,0,0, 150);
+      rect(backgroundOffset + tileSize * (seedArray[i].x/2), 0,tileSize*(1/2), tileSize*(3/4));
+      if (frameCount % 60 === 0){
+        seedArray[i].countdown --;
+      }
+    }
+  }
 }
 
 
