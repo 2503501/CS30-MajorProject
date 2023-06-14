@@ -118,10 +118,10 @@ class Plant{
 
 
   updateWalnut(){
-    if (this.plant === "walnutfull" && this.health <= 500){
+    if (this.plant === "walnutfull" && this.health <= 600){
       this.plant = "walnuthalf";
     }
-    else if (this.plant === "walnuthalf" && this.health <= 240){
+    else if (this.plant === "walnuthalf" && this.health <= 300){
       this.plant = "walnutlow";
     }
   }
@@ -628,13 +628,13 @@ function mouseReleased() {
       else if (draggedPiece === "walnutfull"){
         sunAmount -= 50;
         walnutSeed.countdown = 25;
-        let newplant = new Plant(y, x, draggedPiece, 850); 
+        let newplant = new Plant(y, x, draggedPiece, 1000); 
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
       }
       else if (draggedPiece === "potatounder"){
         sunAmount -= 25;
-        potatoSeed.countdown = 25;
+        potatoSeed.countdown = 27;
         let newplant = new Plant(y, x, draggedPiece, 100); 
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
