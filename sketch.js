@@ -10,6 +10,7 @@ let plantingTimer;
 let scrollOffest = 0;
 let scrollTimer;
 let lossTimer;
+let bigwavetimer;
 let preSunTimer;
 let sunTimer;
 let readySetPlantStatus = null;
@@ -17,6 +18,7 @@ let countdownTimer = 4;
 let scrollDirection = "forward";
 let scrollMax;
 let startscroll = false;
+let showbigwave = false;
 let backgroundOffset;
 let plantOffset;
 let tileSize;
@@ -36,7 +38,7 @@ let seedArray = [];
 let sun_diameter;
 let sunAmount = 75;
 
-let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, repeaterSeed, walnutSeed, potatoSeed, readyLogo, setLogo, Plantlogo, trophy, deathscreen, spudow, shovel, shovelseed;
+let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage, peashooterSeed, sunflowerSeed, repeaterSeed, walnutSeed, potatoSeed, readyLogo, setLogo, Plantlogo, trophy, deathscreen, spudow, shovel, shovelseed, bigwave;
 let peashooter_gif, sunflower_gif, peamoving_gif, walnutfull_gif,walnuthalf_gif, walnutlow_gif, potatounder_gif, potatoup_gif, potatoexplode_gif, repeater_gif;
 let zombiewalk_gif, zombiestill_gif, conewalk_gif, conestill_gif, bucketwalk_gif, bucketstill_gif, zombiedead_gif, zombiehead_gif;
 
@@ -55,7 +57,7 @@ let grid = [
 ];
 
 // let lvl1 = ["zombie", "end"];
-let lvl1 = ["zombie", 26, "zombie", 23, "zombie", 22, "zombie", 3, "zombie", 23, "cone", 20, "zombie", 17, ["cone", "zombie"], 26, "bucket", 8, "zombie", 18, ["cone", "zombie"], 9, "zombie", 9, "bucket", 14, "cone", 6, "cone", 2, "zombie", "end"];
+let lvl1 = ["largewave", "zombie", 23, "zombie", 23, "zombie", 19, "zombie", 3, "zombie", 20, "cone", 19, "zombie", 15, ["cone", "zombie"], 17, "bucket", 6, "zombie", 20, ["cone", "zombie", "zombie"], 9, "zombie", 3, "bucket", 16, "cone", 6, "cone", 4, "zombie", 10, ["bucket", "cone"], 9, "cone", 6, "zombie", 21, "largewave", 4, ["bucket", "cone", "cone", "zombie"], 5, ["bucket", "bucket", "cone", "cone", "zombie"], 5, ["cone", "cone", "zombie", "zombie","zombie"], "end"];
 let levelposition = 0;
 let leveltimer;
 
@@ -296,6 +298,12 @@ class Zombie{
         plantsArray = [];
         sunArray = [];
         resetGrid();
+        potatoSeed.countdown = 0;
+        peashooterSeed.countdown = 0;
+        sunflowerSeed.countdown = 0;
+        walnutSeed.countdown = 0;
+        repeaterSeed.countdown = 0;
+        peaArray = [];
         gamestate = "lose";
         levelposition = 0;
         lossTimer.start();
@@ -346,6 +354,7 @@ function preload(){
   deathscreen = loadImage("images/deathscreen.png");
   spudow = loadImage("images/spudow.png");
   shovelseed = loadImage("images/shovelseed.png");
+  bigwave = loadImage("images/largewave.png");
   
   peashooter_gif = loadImage("images/Peashooter.gif");
   sunflower_gif = loadImage("images/Sunflower.gif");
@@ -392,6 +401,8 @@ function setup() {
   leveltimer.pause();
   lossTimer = new Timer(5500);
   lossTimer.pause();
+  bigwavetimer = new Timer(3500);
+  bigwavetimer.pause;
 
   seedArray.push(potatoSeed);
   seedArray.push(peashooterSeed);
@@ -399,14 +410,14 @@ function setup() {
   seedArray.push(walnutSeed);
   seedArray.push(repeaterSeed);
   potatoSeed.x = 3;
-  potatoSeed.countdown = 0;
   peashooterSeed.x = 0;
-  peashooterSeed.countdown = 0;
   sunflowerSeed.x = 1;
-  sunflowerSeed.countdown = 0;
   walnutSeed.x = 2; 
-  walnutSeed.countdown = 0;
   repeaterSeed.x = 4;
+  potatoSeed.countdown = 0;
+  peashooterSeed.countdown = 0;
+  sunflowerSeed.countdown = 0;
+  walnutSeed.countdown = 0;
   repeaterSeed.countdown = 0;
 
   levelSelectButton = createButton("Select Level");
@@ -430,6 +441,7 @@ function draw() {
   sunDisplay();
   updateCountdown();
   displayDraggedPiece();
+  largewavedisplay();
   displaytrophy();
 }
 
@@ -482,6 +494,13 @@ function zombieReader(){
           else if (lvl1[levelposition][0] === "b"){
             zombiespawner("bucket", 600, "images/bucketattack.gif");
           }
+          levelposition++;
+          leveltimer = new Timer(10);
+          leveltimer.start();
+        }
+        if (lvl1[levelposition][0] === "l"){
+          bigwavetimer.start();
+          showbigwave = true;
           levelposition++;
           leveltimer = new Timer(10);
           leveltimer.start();
@@ -620,14 +639,14 @@ function mouseReleased() {
       }
       else if (draggedPiece === "sunflower"){
         sunAmount -= 50;
-        sunflowerSeed.countdown = 4;
+        sunflowerSeed.countdown = 5;
         let newplant = new Plant(y, x, draggedPiece, 100); 
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
       }
       else if (draggedPiece === "walnutfull"){
         sunAmount -= 50;
-        walnutSeed.countdown = 25;
+        walnutSeed.countdown = 35;
         let newplant = new Plant(y, x, draggedPiece, 1000); 
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
@@ -641,7 +660,7 @@ function mouseReleased() {
       }
       else if (draggedPiece === "repeater"){
         sunAmount -= 200;
-        repeaterSeed.countdown = 6;
+        repeaterSeed.countdown = 5;
         let newplant = new Plant(y, x, draggedPiece, 100);
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
@@ -919,6 +938,12 @@ function displaytrophy(){
         gamestate = "main";
         plantsArray = [];
         resetGrid();
+        potatoSeed.countdown = 0;
+        peashooterSeed.countdown = 0;
+        sunflowerSeed.countdown = 0;
+        walnutSeed.countdown = 0;
+        repeaterSeed.countdown = 0;
+        peaArray = [];
         sunArray = [];
         sunAmount = 75;
       }
@@ -940,4 +965,16 @@ function resetGrid(){
     ["0","0","0","0","0","0","0","0","0"],
     ["0","0","0","0","0","0","0","0","0"]
   ];
+}
+
+function largewavedisplay(){
+  if (showbigwave){
+    image(bigwave,width/2 - bigwave.width/2, height/2 - bigwave.height/2);
+    if (bigwavetimer.expired()){
+      showbigwave = !showbigwave
+      bigwavetimer.start();
+      bigwavetimer.pause();
+    }
+  }
+
 }
