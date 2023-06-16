@@ -23,6 +23,7 @@ For my major project, I would like to recreate the game "Plants vs Zombies" in J
 
 - have some way to store what level you have completed so you can continue from that point if you close the browser.
 - along with the adventure mode, also create a endless mode, where instead of trying to beat a level, you are put in a level where zombies spawn endlessly and you try and last as long as possible.
+- create a shovel so you can remove plants
 - create some custom plants and zombies that are not in the orginal game
 - add some kind of lawnmover system that will be a safe gaurd at the end of a lane
 - add a way pause or continue a round by clicking a button. have the option to leave the level.
