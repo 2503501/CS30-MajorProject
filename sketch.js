@@ -360,7 +360,7 @@ function preload(){
   trophy = loadImage("images/trophy.png");
   deathscreen = loadImage("images/deathscreen.png");
   spudow = loadImage("images/spudow.png");
-  shovelseed = loadImage("images/shovelseed.png");
+  shovelseed = loadImage("images/shovelseed.awdawd");
   bigwave = loadImage("images/largewave.png");
   
   peashooter_gif = loadImage("images/Peashooter.gif");
