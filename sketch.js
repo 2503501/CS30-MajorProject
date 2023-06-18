@@ -24,7 +24,13 @@ let plantOffset;
 let tileSize;
 let gamestate = "main";
 let levelstate = "planting";
-let levelSelectButton;
+let gamemode = null;
+let bucketchance = 90;
+let conechance = 50;
+let endlessTimer = 12000
+let lvl1button;
+let endlessbutton;
+
 let buttons = [];
 
 let backgroundalpha = 0;
@@ -57,7 +63,8 @@ let grid = [
 ];
 
 // let lvl1 = ["zombie", "end"];
-let lvl1 = ["zombie", 23, "zombie", 23, "zombie", 19, "zombie", 3, "zombie", 20, "cone", 19, "zombie", 15, ["cone", "zombie"], 17, "bucket", 6, "zombie", 20, ["cone", "zombie", "zombie"], 9, "zombie", 3, "bucket", 16, "cone", 6, "cone", 4, "zombie", 10, ["bucket", "cone"], 9, "cone", 6, "zombie", 21, "largewave", 4, ["bucket", "cone", "cone", "zombie"], 5, ["bucket", "bucket", "cone", "cone", "zombie"], 5, ["cone", "cone", "zombie", "zombie","zombie"], "end"];
+let lvl1 = ["zombie", 27, "zombie", 23, "zombie", 19, "zombie", 3, "zombie", 20, "cone", 19, "zombie", 15, ["cone", "zombie"], 17, "bucket", 6, "zombie", 20, ["cone", "zombie", "zombie"], 9, "zombie", 3, "bucket", 16, "cone", 6, "cone", 4, "zombie", 10, ["bucket", "cone"], 9, "cone", 6, "zombie", 21, "largewave", 4, ["bucket", "cone", "cone", "zombie"], 5, ["bucket", "bucket", "cone", "cone", "zombie"], 5, ["cone", "cone", "zombie", "zombie","zombie"], "end"];
+let endless = ["zombie", 27, "zombie", 23, "zombie", 19, "zombie", 3, "zombie", 20, "cone", 19, "zombie", 15, ["cone", "zombie"], 17, "bucket", 6, "zombie", 20, ["cone", "zombie", "zombie"], 9, "zombie", 3, "bucket", 16, "cone", 6, "cone", 4, "zombie", 10, ["bucket", "cone"], 9, "cone", 6, "zombie", 21, "x"];
 let levelposition = 0;
 let leveltimer;
 
@@ -420,12 +427,19 @@ function setup() {
   walnutSeed.countdown = 0;
   repeaterSeed.countdown = 0;
 
-  levelSelectButton = createButton("Select Level");
-  levelSelectButton.position(width * 0.512, height* 0.15);
-  levelSelectButton.size(width * 0.4, height * 0.13);
-  levelSelectButton.style("background-color", color(73,76,93));
-  levelSelectButton.style("font-size", "24px", "color", "#ffffff");
-  buttons.push(levelSelectButton);
+  lvl1button = createButton("adventure Level");
+  lvl1button.position(width * 0.512, height* 0.15);
+  lvl1button.size(width * 0.4, height * 0.13);
+  lvl1button.style("background-color", color(73,76,93));
+  lvl1button.style("font-size", "24px", "color", "#ffffff");
+  buttons.push(lvl1button);
+
+  endlessbutton = createButton("Endless mode");
+  endlessbutton.position(width * 0.512, height* 0.3);
+  endlessbutton.size(width * 0.4, height * 0.13);
+  endlessbutton.style("background-color", color(73,76,93));
+  endlessbutton.style("font-size", "24px", "color", "#ffffff");
+  buttons.push(endlessbutton);
 }
 
 function draw() {
@@ -461,21 +475,21 @@ function zombieReader(){
       }
     }
     else if (levelstate === "start" && leveltimer.expired()){
-      if (Number.isInteger(lvl1[levelposition])){
-        let tempvalue = lvl1[levelposition] * 1000;
+      if (Number.isInteger(gamemode[levelposition])){
+        let tempvalue = gamemode[levelposition] * 1000;
         levelposition++;
         leveltimer = new Timer(tempvalue);
         leveltimer.start();
       }
-      else if (Array.isArray(lvl1[levelposition])){
-        for (let i = 0; i < lvl1[levelposition].length; i++){
-          if (lvl1[levelposition][i][0] === "z"){
+      else if (Array.isArray(gamemode[levelposition])){
+        for (let i = 0; i < gamemode[levelposition].length; i++){
+          if (gamemode[levelposition][i][0] === "z"){
             zombiespawner("zombie", 100, "images/zombieattack.gif");
           }
-          else if (lvl1[levelposition][i][0] === "c"){
+          else if (gamemode[levelposition][i][0] === "c"){
             zombiespawner("cone", 250, "images/coneattack.gif");
           }
-          else if (lvl1[levelposition][i][0] === "b"){
+          else if (gamemode[levelposition][i][0] === "b"){
             zombiespawner("bucket", 600, "images/bucketattack.gif");
           }
         }
@@ -484,28 +498,31 @@ function zombieReader(){
         leveltimer.start();
       }
       else{
-        if (lvl1[levelposition][0] === "z" || lvl1[levelposition][0] === "c" || lvl1[levelposition][0] === "b"){
-          if (lvl1[levelposition][0] === "z"){
+        if (gamemode[levelposition][0] === "z" || gamemode[levelposition][0] === "c" || gamemode[levelposition][0] === "b"){
+          if (gamemode[levelposition][0] === "z"){
             zombiespawner("zombie", 110, "images/zombieattack.gif");
           }
-          else if (lvl1[levelposition][0] === "c"){
+          else if (gamemode[levelposition][0] === "c"){
             zombiespawner("cone", 250, "images/coneattack.gif");
           }
-          else if (lvl1[levelposition][0] === "b"){
+          else if (gamemode[levelposition][0] === "b"){
             zombiespawner("bucket", 600, "images/bucketattack.gif");
           }
           levelposition++;
           leveltimer = new Timer(10);
           leveltimer.start();
         }
-        if (lvl1[levelposition][0] === "l"){
+        if (gamemode[levelposition][0] === "x"){
+          infinitespawner();
+        }
+        if (gamemode[levelposition][0] === "l"){
           bigwavetimer.start();
           showbigwave = true;
           levelposition++;
           leveltimer = new Timer(10);
           leveltimer.start();
         }
-        if (lvl1[levelposition][0] === "e"){
+        if (gamemode[levelposition][0] === "e"){
           levelstate = "stopspawning";
           leveltimer = new Timer(10);
           leveltimer.pause();
@@ -529,6 +546,33 @@ function zombieReader(){
       }
     }
   }
+}
+
+function infinitespawner(){
+  for (let i = 0; i < 2; i++){
+    let tempnumber = random(0, 100)
+    if (tempnumber < conechance){
+      zombiespawner("zombie", 100, "images/zombieattack.gif");
+    }
+    else if (tempnumber >= conechance && tempnumber < bucketchance){
+      zombiespawner("cone", 250, "images/coneattack.gif");
+    }
+    else{
+      zombiespawner("bucket", 600, "images/bucketattack.gif");
+    }
+  }
+  if (conechance >=4){
+    conechance -= 0.5;
+  }
+  if (bucketchance >=11){
+    bucketchance -= 0.5;
+  }
+  if (conechance <= 40 && endlessTimer >= 4500){
+    endlessTimer -= 100;
+  }
+  leveltimer = new Timer(endlessTimer);
+  leveltimer.start();
+  
 }
 
 function zombiespawner(zombie, health, attackimage){
@@ -698,7 +742,8 @@ function updateCountdown(){
 
 
 function updateBackgroundStatus(){
-  levelSelectButton.mouseClicked(levelSelectButtonClicked);
+  endlessbutton.mouseClicked(endlessbuttonclicked)
+  lvl1button.mouseClicked(lvl1ButtonClicked);
 }
 
 function buttonhider(){
@@ -707,8 +752,15 @@ function buttonhider(){
   }
 }
 
-function levelSelectButtonClicked(){
+function endlessbuttonclicked(){
   gamestate = "pregame";
+  gamemode = endless;
+  scrollTimer.start();
+}
+
+function lvl1ButtonClicked(){
+  gamestate = "pregame";
+  gamemode = lvl1;
   scrollTimer.start();
 }
 
@@ -735,7 +787,8 @@ function sunDisplay(){
 function backgroundDrawer(whichbackground){
   if (whichbackground === "main"){
     background(mainMenuBackground);
-    levelSelectButton.show();
+    lvl1button.show();
+    endlessbutton.show();
   }
   else if (whichbackground === "pregame"){
     image(lawn,scrollOffest + backgroundOffset, tileSize, tileSize*9,tileSize*5);
@@ -946,6 +999,7 @@ function displaytrophy(){
         peaArray = [];
         sunArray = [];
         sunAmount = 75;
+        gamemode = null;
       }
     }
   }
