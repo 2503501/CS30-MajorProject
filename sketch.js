@@ -27,7 +27,7 @@ let levelstate = "planting";
 let gamemode = null;
 let bucketchance = 90;
 let conechance = 50;
-let endlessTimer = 12000
+let endlessTimer = 12000;
 let lvl1button;
 let endlessbutton;
 
@@ -392,8 +392,8 @@ function preload(){
   zombiehead_gif = loadImage("images/zombiehead.gif");
 
   mainmusic = loadSound("audio/gamepk.mp3");
-  gamemusic = loadSound("audio/background1.mp3")
-  pregamemusic = loadSound("audio/pregame.mp3")
+  gamemusic = loadSound("audio/background1.mp3");
+  pregamemusic = loadSound("audio/pregame.mp3");
   winmusic = loadSound("audio/winmusic.mp3");
   groan1 = loadSound("audio/groan3.mp3");
   groan2 = loadSound("audio/groan5.mp3");
@@ -475,8 +475,8 @@ function setup() {
 
   soundslider = createSlider(0, 1, 0.5, 0.01);
   soundslider.position(width * 0.90, height * 0.02);
-  soundslider.style('width', '80px');
-  soundslider.style('color', 'black');
+  soundslider.style("width", "80px");
+  soundslider.style("color", "black");
 
 }
 
@@ -596,7 +596,7 @@ function zombieReader(){
 
 function infinitespawner(){
   for (let i = 0; i < 2; i++){
-    let tempnumber = random(0, 100)
+    let tempnumber = random(0, 100);
     if (tempnumber < conechance){
       zombiespawner("zombie", 100, "images/zombieattack.gif");
     }
@@ -697,7 +697,7 @@ function mousePressed(){
       }
       else if (x ===5 || x ===6){
         draggedPiece = "shovel";
-        draggedImage = loadImage("images/shovel.PNG");
+        draggedImage = loadImage("images/shovel.png");
       }
     }
   }
@@ -790,7 +790,7 @@ function updateCountdown(){
 
 
 function updateBackgroundStatus(){
-  endlessbutton.mouseClicked(endlessbuttonclicked)
+  endlessbutton.mouseClicked(endlessbuttonclicked);
   lvl1button.mouseClicked(lvl1ButtonClicked);
   soundbutton.mouseClicked(soundbuttonclicked);
 }
@@ -1082,7 +1082,7 @@ function largewavedisplay(){
   if (showbigwave){
     image(bigwave,width/2 - bigwave.width/2, height/2 - bigwave.height/2);
     if (bigwavetimer.expired()){
-      showbigwave = !showbigwave
+      showbigwave = !showbigwave;
       bigwavetimer.start();
       bigwavetimer.pause();
     }
