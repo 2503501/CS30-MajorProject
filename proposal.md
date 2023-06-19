@@ -10,11 +10,10 @@ For my major project, I would like to recreate the game "Plants vs Zombies" in J
 ## Needs To Have List
 
 - Main adventure or level select mode with at least 1 level
-    - similar to how the main game plays out, have a wave of zombies proceed through the screen and have a win objective (if you defend your lawn), and define loses (zombies reach end of the lawn)
-- main menu
-    - Have a main menu where you start the game with the press of a button
+- similar to how the main game plays out, have a wave of zombies proceed through the screen and have a win objective (if you defend your lawn), and define loses (zombies reach end of the lawn)
+- Have a main menu where you start the game with the press of a button
 - unique plants and Zombies
-    - have at least multiple unique plants to unlock during the adventure mode that behave in different ways. have different zombies of varying health for each level.
+     - have at least multiple unique plants to unlock during the adventure mode that behave in different ways. have different zombies of varying health for each level.
 - background music and sound effects
     - incorporate background music for the main menu and levels, and proper sound effects for attacks and death sounds.
 - give the zombies and plants mulitple sprits so you can alternate between to make it look like they are moving
