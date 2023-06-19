@@ -48,6 +48,10 @@ let mainMenuBackground, housePicture, backgroundFence, lawn, sidewalk, sunimage,
 let peashooter_gif, sunflower_gif, peamoving_gif, walnutfull_gif,walnuthalf_gif, walnutlow_gif, potatounder_gif, potatoup_gif, potatoexplode_gif, repeater_gif;
 let zombiewalk_gif, zombiestill_gif, conewalk_gif, conestill_gif, bucketwalk_gif, bucketstill_gif, zombiedead_gif, zombiehead_gif;
 
+let mainmusic, pregamemusic, gamemusic, losemusic, winmusic, groan1, groan2, hugewavesound, peahitsound, peashootsound, sunnoise, zombiecomingnoise, explosion;
+let playmusic = false;
+let soundbutton, soundslider;
+
 let pieceSelected = false;
 let draggedPiece = null;
 let draggedImage = null;
@@ -63,7 +67,7 @@ let grid = [
 ];
 
 // let lvl1 = ["zombie", "end"];
-let lvl1 = ["zombie", 27, "zombie", 23, "zombie", 19, "zombie", 3, "zombie", 20, "cone", 19, "zombie", 15, ["cone", "zombie"], 17, "bucket", 6, "zombie", 20, ["cone", "zombie", "zombie"], 9, "zombie", 3, "bucket", 16, "cone", 6, "cone", 4, "zombie", 10, ["bucket", "cone"], 9, "cone", 6, "zombie", 21, "largewave", 4, ["bucket", "cone", "cone", "zombie"], 5, ["bucket", "bucket", "cone", "cone", "zombie"], 5, ["cone", "cone", "zombie", "zombie","zombie"], "end"];
+let lvl1 = ["zombie", 27, "zombie", 24, "zombie", 19, "zombie", 3, "zombie", 20, "cone", 19, "zombie", 15, ["cone", "zombie"], 17, "bucket", 6, "zombie", 20, ["cone", "zombie", "zombie"], 9, "zombie", 3, "bucket", 16, "cone", 6, "cone", 4, "zombie", 10, ["bucket", "cone"], 9, "cone", 6, "zombie", 21, "largewave", 4, ["bucket", "cone", "cone", "zombie"], 5, ["bucket", "bucket", "cone", "cone", "zombie"], 5, ["cone", "cone", "zombie", "zombie","zombie"], "end"];
 let endless = ["zombie", 27, "zombie", 23, "zombie", 19, "zombie", 3, "zombie", 20, "cone", 19, "zombie", 15, ["cone", "zombie"], 17, "bucket", 6, "zombie", 20, ["cone", "zombie", "zombie"], 9, "zombie", 3, "bucket", 16, "cone", 6, "cone", 4, "zombie", 10, ["bucket", "cone"], 9, "cone", 6, "zombie", 21, "x"];
 let levelposition = 0;
 let leveltimer;
@@ -92,6 +96,7 @@ class Plant{
     if ((this.plant === "peashooter" || this.plant === "repeater") && (this.fireRate.expired() || this.fireRate2.expired())&& gamestate === "adventure"){
       for (let i = 0; i < zombieArray.length; i++){
         if (this.y === zombieArray[i].y && backgroundOffset + plantOffset * -5 + tileSize * this.x <= zombieArray[i].x && zombieArray[i].x <backgroundOffset+ tileSize*9.1){
+          peashootsound.play();
           let newpea = new Pea(backgroundOffset + plantOffset *3 + tileSize * this.x , this.y );
           peaArray.push(newpea);
           break;
@@ -116,6 +121,7 @@ class Plant{
         if (this.y === zombieArray[i].y && zombieArray[i].x <= (this.x - 0.14) * tileSize + backgroundOffset + plantOffset && zombieArray[i].x >= (this.x -0.96) * tileSize + backgroundOffset + plantOffset){
           zombieArray[i].health = 0;
           this.plant = "potatoexplode";
+          explosion.play();
           this.explodetimer.start();
         }
       }
@@ -127,10 +133,10 @@ class Plant{
 
 
   updateWalnut(){
-    if (this.plant === "walnutfull" && this.health <= 600){
+    if (this.plant === "walnutfull" && this.health <= 800){
       this.plant = "walnuthalf";
     }
-    else if (this.plant === "walnuthalf" && this.health <= 300){
+    else if (this.plant === "walnuthalf" && this.health <= 450){
       this.plant = "walnutlow";
     }
   }
@@ -169,6 +175,7 @@ class Pea{
     for (let i = 0; i < zombieArray.length; i++){
       if (this.y === zombieArray[i].y && this.x > zombieArray[i].x +tileSize * 0.62 && this.x < zombieArray[i].x + tileSize +tileSize * 0.64 && (zombieArray[i].state === "walk" || zombieArray[i].state === "attack")  && this.state === "moving"){
         this.state = "hit";
+        peahitsound.play();
         zombieArray[i].health -= 10;
         this.hitTimer =  new Timer(100);
         this.hitTimer.start();
@@ -226,6 +233,7 @@ class Sun{
       this.dx = (this.x - this.finishX)/15;
       this.dy = (this.y - this.finishY) /15;
       sunAmount += 25;
+      sunnoise.play();
     }
     if (this.collected){
       this.x -= this.dx;
@@ -314,7 +322,7 @@ class Zombie{
         gamestate = "lose";
         levelposition = 0;
         lossTimer.start();
-        //PLAYSOUND
+        losemusic.play();
         let tempzombie = zombieArray[position];
         zombieArray = [];
         zombieArray.push(tempzombie);
@@ -360,7 +368,7 @@ function preload(){
   trophy = loadImage("images/trophy.png");
   deathscreen = loadImage("images/deathscreen.png");
   spudow = loadImage("images/spudow.png");
-  shovelseed = loadImage("images/shovelseed.awdawd");
+  shovelseed = loadImage("images/shovelseed.PNG");
   bigwave = loadImage("images/largewave.png");
   
   peashooter_gif = loadImage("images/Peashooter.gif");
@@ -382,10 +390,26 @@ function preload(){
   bucketwalk_gif = loadImage("images/bucketwalk.gif");
   zombiedead_gif = loadImage("images/zombiedie.gif");
   zombiehead_gif = loadImage("images/zombiehead.gif");
+
+  mainmusic = loadSound("audio/gamepk.mp3");
+  gamemusic = loadSound("audio/background1.mp3")
+  pregamemusic = loadSound("audio/pregame.mp3")
+  winmusic = loadSound("audio/winmusic.mp3");
+  groan1 = loadSound("audio/groan3.mp3");
+  groan2 = loadSound("audio/groan5.mp3");
+  hugewavesound = loadSound("audio/hugewave.mp3");
+  losemusic = loadSound("audio/losemusic.mp3");
+  peahitsound = loadSound("audio/peahit.mp3");
+  peashootsound = loadSound("audio/peashot.mp3");
+  sunnoise = loadSound("audio/sunnoise.mp3");
+  zombiecomingnoise = loadSound("audio/zombiescoming.mp3");
+  explosion = loadSound("audio/explosion.mp3");
+
+  sunnoise.setVolume(2.25);
+
 }
 
 function setup() {
-
   if (windowWidth/windowHeight < 1.9){
     createCanvas(windowWidth, windowWidth/1.9);
   }
@@ -399,14 +423,15 @@ function setup() {
   plantOffset = tileSize/6;
   scrollMax =  backgroundOffset+ tileSize * 9 - 500;
 
-  scrollTimer = new Timer(1500);
+  scrollTimer = new Timer(2000);
+  scrollTimer.pause();
   sunTimer = new Timer(9500);
   sunTimer.pause();
   plantingTimer = new Timer(14000);
   plantingTimer.pause();
   leveltimer = new Timer(10);
   leveltimer.pause();
-  lossTimer = new Timer(5500);
+  lossTimer = new Timer(4000);
   lossTimer.pause();
   bigwavetimer = new Timer(3500);
   bigwavetimer.pause;
@@ -440,6 +465,19 @@ function setup() {
   endlessbutton.style("background-color", color(73,76,93));
   endlessbutton.style("font-size", "24px", "color", "#ffffff");
   buttons.push(endlessbutton);
+
+  soundbutton = createButton("mute");
+  soundbutton.position(width * 0.95, height * 0);
+  soundbutton.size(width * 0.05, height * 0.05);
+  soundbutton.style("background-color", color(73,76,93));
+  soundbutton.style("font-size", "24px", "color", "#ffffff");
+  buttons.push(soundbutton);
+
+  soundslider = createSlider(0, 1, 0.5, 0.01);
+  soundslider.position(width * 0.90, height * 0.02);
+  soundslider.style('width', '80px');
+  soundslider.style('color', 'black');
+
 }
 
 function draw() {
@@ -457,6 +495,12 @@ function draw() {
   displayDraggedPiece();
   largewavedisplay();
   displaytrophy();
+  backgroundmusic();
+
+  mainmusic.setVolume(soundslider.value());
+  gamemusic.setVolume(soundslider.value());
+  pregamemusic.setVolume(soundslider.value());
+
 }
 
 // things that need to be reset on a lose or a win
@@ -472,6 +516,7 @@ function zombieReader(){
         plantingTimer.pause();
         levelstate = "start";
         leveltimer.start();
+        zombiecomingnoise.play();
       }
     }
     else if (levelstate === "start" && leveltimer.expired()){
@@ -516,6 +561,7 @@ function zombieReader(){
           infinitespawner();
         }
         if (gamemode[levelposition][0] === "l"){
+          hugewavesound.play();
           bigwavetimer.start();
           showbigwave = true;
           levelposition++;
@@ -562,13 +608,13 @@ function infinitespawner(){
     }
   }
   if (conechance >=4){
-    conechance -= 0.5;
+    conechance -= 1;
   }
   if (bucketchance >=11){
-    bucketchance -= 0.5;
+    bucketchance -= 1;
   }
   if (conechance <= 40 && endlessTimer >= 4500){
-    endlessTimer -= 100;
+    endlessTimer -= 250;
   }
   leveltimer = new Timer(endlessTimer);
   leveltimer.start();
@@ -576,6 +622,7 @@ function infinitespawner(){
 }
 
 function zombiespawner(zombie, health, attackimage){
+  groan1.play();
   let newzombie = new Zombie(width - tileSize * 0.7, Math.round(random(-0.4, 4.4)), zombie, health, 0.35, attackimage);
   zombieArray.push(newzombie);
 }
@@ -657,6 +704,7 @@ function mousePressed(){
   if (gamestate === "win"){
     if (mouseX > trophy.x && mouseX <trophy.x + trophy.width && mouseY > trophy.y && mouseY < trophy.y + trophy.width){
       trophy.state = "clicked";
+      winmusic.play();
     }
   }
 }
@@ -691,7 +739,7 @@ function mouseReleased() {
       else if (draggedPiece === "walnutfull"){
         sunAmount -= 50;
         walnutSeed.countdown = 35;
-        let newplant = new Plant(y, x, draggedPiece, 1000); 
+        let newplant = new Plant(y, x, draggedPiece, 1500); 
         plantsArray.push(newplant);
         grid[y][x] = draggedPiece;
       }
@@ -744,12 +792,17 @@ function updateCountdown(){
 function updateBackgroundStatus(){
   endlessbutton.mouseClicked(endlessbuttonclicked)
   lvl1button.mouseClicked(lvl1ButtonClicked);
+  soundbutton.mouseClicked(soundbuttonclicked);
 }
 
 function buttonhider(){
   for (let i = 0; i < buttons.length; i++){
     buttons[i].hide();
   }
+}
+
+function soundbuttonclicked(){
+  playmusic = !playmusic;
 }
 
 function endlessbuttonclicked(){
@@ -789,8 +842,10 @@ function backgroundDrawer(whichbackground){
     background(mainMenuBackground);
     lvl1button.show();
     endlessbutton.show();
+    soundbutton.show();
   }
   else if (whichbackground === "pregame"){
+    soundbutton.show();
     image(lawn,scrollOffest + backgroundOffset, tileSize, tileSize*9,tileSize*5);
     image(housePicture,scrollOffest + 0, 0, backgroundOffset, height);
     image(backgroundFence,scrollOffest + backgroundOffset, 0, tileSize*9, tileSize);
@@ -819,6 +874,7 @@ function backgroundDrawer(whichbackground){
     }
   }
   else if (gamestate === "readysetplant"){
+    soundbutton.show();
     image(lawn, backgroundOffset, tileSize, tileSize*9,tileSize*5);
     image(housePicture, 0, 0, backgroundOffset, height);
     image(backgroundFence, backgroundOffset, 0, tileSize*9, tileSize);
@@ -845,6 +901,7 @@ function backgroundDrawer(whichbackground){
 
   }
   else if (gamestate === "adventure"){
+    soundbutton.show();
 
     //background images
     image(lawn, backgroundOffset, tileSize, tileSize*9,tileSize*5);
@@ -875,7 +932,7 @@ function backgroundDrawer(whichbackground){
     image(repeaterSeed, backgroundOffset + tileSize * 2,0,tileSize*(1/2), tileSize*(3/4));
   }
   else if (gamestate === "win"){
-
+    soundbutton.show();
     //background images
     image(lawn, backgroundOffset, tileSize, tileSize*9,tileSize*5);
     image(housePicture, 0, 0, backgroundOffset, height);
@@ -906,7 +963,7 @@ function backgroundDrawer(whichbackground){
 
   } 
   else if (gamestate === "lose"){
-    
+    soundbutton.show();
     //background images
     fill(255);
     image(lawn, backgroundOffset, tileSize, tileSize*9,tileSize*5);
@@ -1030,5 +1087,50 @@ function largewavedisplay(){
       bigwavetimer.pause();
     }
   }
+}
 
+function backgroundmusic(){
+  if (playmusic){
+    if (gamestate === "main"){
+      if (!mainmusic.isPlaying()){
+        mainmusic.jump(0);
+        mainmusic.play();
+        mainmusic.setLoop(true);
+      }
+    }
+    else{
+      mainmusic.setLoop(false);
+      mainmusic.stop();
+    }
+    if (gamestate === "pregame" || gamestate === "readysetplant" ){
+      if (!pregamemusic.isPlaying()){
+        pregamemusic.jump(0);
+        pregamemusic.play();
+        pregamemusic.setLoop(true);
+      }
+    }
+    else{
+      pregamemusic.setLoop(false);
+      pregamemusic.stop();
+    }
+    if (gamestate === "adventure"){
+      if (!gamemusic.isPlaying()){
+        gamemusic.jump(0);
+        gamemusic.play();
+        gamemusic.setLoop(true);
+      }
+    }
+    else{
+      gamemusic.setLoop(false);
+      gamemusic.stop();
+    }
+  }
+  else{
+    mainmusic.setLoop(false);
+    mainmusic.pause();
+    pregamemusic.setLoop(false);
+    pregamemusic.pause();
+    gamemusic.setLoop(false);
+    gamemusic.pause();
+  }
 }
