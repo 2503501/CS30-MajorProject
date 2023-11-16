@@ -36,6 +36,9 @@ let draggedImage = null;
 // button variables
 let lvl1button;
 let endlessbutton;
+let fillerbutton1;
+let fillerbutton2;
+let fillerbutton3;
 let buttons = [];
 
 //array variables
@@ -498,18 +501,39 @@ function setup() {
 
   //create buttons and sliders
   lvl1button = createButton("adventure Level");
-  lvl1button.position(width * 0.512, height* 0.15);
-  lvl1button.size(width * 0.4, height * 0.3);
+  lvl1button.position(width * 0.56, height* 0.18);
+  lvl1button.size(width * 0.31, height * 0.09);
   lvl1button.style("background-color", color(73,76,93));
   lvl1button.style("font-size", "24px", "color", "#ffffff");
   buttons.push(lvl1button);
 
   endlessbutton = createButton("Endless mode");
-  endlessbutton.position(width * 0.512, height* 0.46);
-  endlessbutton.size(width * 0.4, height * 0.3);
+  endlessbutton.position(width * 0.54, height* 0.29);
+  endlessbutton.size(width * 0.35, height * 0.09);
   endlessbutton.style("background-color", color(73,76,93));
   endlessbutton.style("font-size", "24px", "color", "#ffffff");
   buttons.push(endlessbutton);
+
+  fillerbutton1 = createButton("Not Available");
+  fillerbutton1.position(width * 0.55, height* 0.41);
+  fillerbutton1.size(width * 0.34, height * 0.11);
+  fillerbutton1.style("background-color", color(73,76,93));
+  fillerbutton1.style("font-size", "24px", "color", "#ffffff");
+  buttons.push(fillerbutton1);
+
+  fillerbutton2 = createButton("Not Available");
+  fillerbutton2.position(width * 0.55, height* 0.54);
+  fillerbutton2.size(width * 0.34, height * 0.1);
+  fillerbutton2.style("background-color", color(73,76,93));
+  fillerbutton2.style("font-size", "24px", "color", "#ffffff");
+  buttons.push(fillerbutton2);
+
+  fillerbutton3 = createButton("Not Available");
+  fillerbutton3.position(width * 0.55, height* 0.66);
+  fillerbutton3.size(width * 0.34, height * 0.11);
+  fillerbutton3.style("background-color", color(73,76,93));
+  fillerbutton3.style("font-size", "24px", "color", "#ffffff");
+  buttons.push(fillerbutton3);
 
   soundbutton = createButton("mute");
   soundbutton.position(width * 0.95, height * 0);
@@ -924,6 +948,9 @@ function backgroundDrawer(whichbackground){
     background(mainMenuBackground);
     lvl1button.show();
     endlessbutton.show();
+    fillerbutton1.show();
+    fillerbutton2.show();
+    fillerbutton3.show();
     soundbutton.show();
   }
   
